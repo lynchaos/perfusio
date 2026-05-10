@@ -263,6 +263,7 @@ filterwarnings = [
     "ignore::UserWarning:linear_operator",
     "ignore::UserWarning:gpytorch",
     "ignore::UserWarning:botorch",
+    "ignore::botorch.exceptions.warnings.BotorchWarning",
     "ignore::SyntaxWarning:pyro",
     "ignore::DeprecationWarning:pyro",
 ]
