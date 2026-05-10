@@ -241,6 +241,7 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "-ra",
+    "--benchmark-disable",
     "--cov=perfusio",
     "--cov-report=term-missing",
     "--cov-report=xml",
