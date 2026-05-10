@@ -141,7 +141,7 @@ def retrain_online(
     # Append new observations to the training set
     assert model.train_inputs is not None
     old_x = cast(Tensor, model.train_inputs[0])
-    old_y = model.train_targets
+    old_y = cast(Tensor, model.train_targets)
     augmented_x = torch.cat([old_x, new_x], dim=0)
     augmented_y = torch.cat([old_y, new_y], dim=0)
     model.set_train_data(inputs=augmented_x, targets=augmented_y, strict=False)
