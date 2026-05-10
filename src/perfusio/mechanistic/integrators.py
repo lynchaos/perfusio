@@ -16,7 +16,7 @@ References
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -80,7 +80,7 @@ def integrate_run(
     result = _try_integrate(rhs, y0, t_eval, t_end)
     # Clip negative values in the solution (cannot be negative physically)
     sol = np.maximum(result, 0.0)
-    return sol
+    return cast(np.ndarray, sol)
 
 
 def _try_integrate(
@@ -131,7 +131,7 @@ def _try_integrate(
             )
         if sol.success:
             # sol.y has shape (n_species, len(t_eval)); transpose to (T, n_species)
-            return sol.y.T
+            return cast(np.ndarray, sol.y.T)
 
     msg = (
         "All ODE solvers (RK45, Radau, LSODA) failed to converge. "

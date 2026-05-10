@@ -19,6 +19,7 @@ References
 from __future__ import annotations
 
 import itertools
+from typing import cast
 
 import numpy as np
 
@@ -144,7 +145,7 @@ def latin_hypercube(
         seed=seed,
         optimization="random-cd" if optimise else None,
     )
-    return engine.random(n=n_runs)
+    return cast(np.ndarray, engine.random(n=n_runs))
 
 
 def scale_to_bounds(
@@ -175,4 +176,4 @@ def scale_to_bounds(
         t = (design + 1.0) / 2.0  # map [-1,1] → [0,1]
     else:
         t = design
-    return lo + (hi - lo) * t
+    return cast(np.ndarray, lo + (hi - lo) * t)

@@ -20,7 +20,7 @@ References
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import gpytorch
 import torch
@@ -76,12 +76,12 @@ def train_hybrid(
     def closure() -> Tensor:
         opt_lbfgs.zero_grad()
         output = model(train_x)
-        loss = -mll(output, train_y)
+        loss = cast(Tensor, -mll(output, train_y))
         loss.backward()
         return loss
 
     try:
-        final_loss = opt_lbfgs.step(closure)
+        final_loss = opt_lbfgs.step(closure)  # type: ignore[no-untyped-call]
         if torch.isnan(final_loss) or torch.isinf(final_loss):
             lbfgs_ok = False
             logger.warning("L-BFGS produced NaN/Inf loss; falling back to Adam.")
