@@ -405,7 +405,7 @@ class Trajectory:
         try:
             return self.species_names.index(name)
         except ValueError as exc:
-            msg = f"Species '{name}' not found in trajectory. " f"Available: {self.species_names}"
+            msg = f"Species '{name}' not found in trajectory. Available: {self.species_names}"
             raise KeyError(msg) from exc
 
     def get_species(self, name: str) -> Tensor:

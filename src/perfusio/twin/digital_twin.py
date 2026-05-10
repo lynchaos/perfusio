@@ -242,14 +242,16 @@ class DigitalTwin:
             base_rows.append(torch.cat([sp, ctrl, day_t]))  # (16,)
 
         # Input rows are t=0..N-2; targets are species at t=1..N-1
-        base_x = torch.stack(base_rows[:-1])   # (N-1, 16)
-        new_y_base = torch.stack([
-            torch.tensor(
-                [float(ob["sample"].get(s, 0.0) or 0.0) for s in self.species_names],
-                dtype=torch.float64,
-            )
-            for ob in self._obs_buffer[1:]
-        ])  # (N-1, n_species)
+        base_x = torch.stack(base_rows[:-1])  # (N-1, 16)
+        new_y_base = torch.stack(
+            [
+                torch.tensor(
+                    [float(ob["sample"].get(s, 0.0) or 0.0) for s in self.species_names],
+                    dtype=torch.float64,
+                )
+                for ob in self._obs_buffer[1:]
+            ]
+        )  # (N-1, n_species)
 
         N = base_x.shape[0]
 
@@ -258,7 +260,7 @@ class DigitalTwin:
         for task_id in range(n_species):
             task_col = torch.full((N, 1), float(task_id), dtype=torch.float64)
             xs_flat.append(torch.cat([base_x, task_col], dim=1))  # (N, 17)
-            ys_flat.append(new_y_base[:, task_id])                 # (N,)
+            ys_flat.append(new_y_base[:, task_id])  # (N,)
 
         new_x = torch.cat(xs_flat, dim=0)  # (N * n_species, 17)
         new_y = torch.cat(ys_flat, dim=0)  # (N * n_species,)
@@ -266,7 +268,7 @@ class DigitalTwin:
         retrain_online(
             new_x=new_x,
             new_y=new_y,
-            model=self.hybrid.gp_model.model,       # MultiTaskRateGP (ExactGP)
+            model=self.hybrid.gp_model.model,  # MultiTaskRateGP (ExactGP)
             likelihood=self.hybrid.gp_model.likelihood,
         )
 

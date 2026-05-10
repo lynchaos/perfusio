@@ -88,7 +88,7 @@ def build_acquisition(
         If *name* is not a recognised acquisition type.
     """
     if name not in ALL_ACQUISITIONS:
-        msg = f"Unknown acquisition '{name}'. " f"Choose one of: {sorted(ALL_ACQUISITIONS)}"
+        msg = f"Unknown acquisition '{name}'. Choose one of: {sorted(ALL_ACQUISITIONS)}"
         raise ValueError(msg)
 
     if sampler is None and name in (_SINGLE_OBJ_MC | _MULTI_OBJ_MC):

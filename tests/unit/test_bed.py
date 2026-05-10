@@ -76,9 +76,9 @@ class TestTargetTrackingOFV:
         ofv = TargetTrackingOFV(targets=[TargetSpec(0, 5.0)])
         Y_near = torch.full((1, 3, 13), 5.0, dtype=torch.float64)
         Y_far = torch.full((1, 3, 13), 10.0, dtype=torch.float64)
-        assert ofv.score_trajectories(Y_near) > ofv.score_trajectories(
-            Y_far
-        ), "OFV should be higher when prediction is closer to target."
+        assert ofv.score_trajectories(Y_near) > ofv.score_trajectories(Y_far), (
+            "OFV should be higher when prediction is closer to target."
+        )
 
 
 class TestBuildAcquisition:

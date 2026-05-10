@@ -26,7 +26,7 @@ def test_volume_mass_balance(perfusion_rate: float, bleed_rate: float) -> None:
     bleed_r = bleed_rate * v0 / 24.0
     harvest_rate = float(constant_volume_harvest_rate(feed_rate, bleed_r))
     v1 = float(perfusion_volume_step(v0, feed_rate, bleed_r, harvest_rate))
-    assert abs(v1 - v0) < 1e-8, f"Volume drift {abs(v1-v0):.2e} exceeds tolerance."
+    assert abs(v1 - v0) < 1e-8, f"Volume drift {abs(v1 - v0):.2e} exceeds tolerance."
 
 
 @settings(max_examples=20, deadline=10000)

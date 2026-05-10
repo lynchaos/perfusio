@@ -77,7 +77,11 @@ def fig4_training_trajectories(
     for ax_idx, ax in enumerate(axes):
         # Split runs by clone label: left panel = CloneX (or first half), right = CloneY
         if clone_labels is not None:
-            subset = [r for r, lbl in zip(runs, clone_labels, strict=True) if (ax_idx == 0) == ("X" in lbl or "x" in lbl)]
+            subset = [
+                r
+                for r, lbl in zip(runs, clone_labels, strict=True)
+                if (ax_idx == 0) == ("X" in lbl or "x" in lbl)
+            ]
         else:
             # No labels provided: split evenly by index
             mid = len(runs) // 2

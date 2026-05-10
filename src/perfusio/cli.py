@@ -101,8 +101,12 @@ def train(
     from perfusio.states import Trajectory
 
     _CONTROL_NAMES = [
-        "perfusion_rate", "bleed_rate", "glucose_setpoint",
-        "temperature", "agitation", "pyruvate_feed",
+        "perfusion_rate",
+        "bleed_rate",
+        "glucose_setpoint",
+        "temperature",
+        "agitation",
+        "pyruvate_feed",
     ]
     _SPECIES_NAMES = CHOKinetics.STATE_ORDER  # 9 species
 
@@ -161,23 +165,31 @@ def train(
     for task_id in range(n_tasks):
         task_col = torch.full((N_base, 1), float(task_id), dtype=train_x_base.dtype)
         xs_flat.append(torch.cat([train_x_base, task_col], dim=1))  # (N, 17)
-        ys_flat.append(train_y_base[:, task_id])                     # (N,)
+        ys_flat.append(train_y_base[:, task_id])  # (N,)
 
     train_x = torch.cat(xs_flat, dim=0)  # (N * n_tasks, 17)
     train_y = torch.cat(ys_flat, dim=0)  # (N * n_tasks,)
 
     likelihood = gpytorch.likelihoods.GaussianLikelihood()
     gp_model = MultiTaskRateGP(
-        train_x, train_y, likelihood,
+        train_x,
+        train_y,
+        likelihood,
         mean_module=gpytorch.means.ZeroMean(),
         n_tasks=n_tasks,
         n_state_dims=n_species + n_controls,
     )
 
-    typer.echo(f"Training hybrid GP on {N_base} one-step pairs × {n_tasks} species = {len(train_x)} rows (n_steps={n_steps})…")
+    typer.echo(
+        f"Training hybrid GP on {N_base} one-step pairs × {n_tasks} species = {len(train_x)} rows (n_steps={n_steps})…"
+    )
     train_hybrid(
-        train_x, train_y, gp_model, likelihood,
-        n_iter_lbfgs=n_steps, n_iter_adam=n_steps,
+        train_x,
+        train_y,
+        gp_model,
+        likelihood,
+        n_iter_lbfgs=n_steps,
+        n_iter_adam=n_steps,
     )
 
     sw_gp = StepwiseGP(gp_model, likelihood, n_species=n_species, control_names=_CONTROL_NAMES)
@@ -366,9 +378,7 @@ def reproduce_figures(
         )
         # P-controller: ramp bleed to keep VCD near target
         _vcd_err = _vcd_t - _VCD_TARGET_CL
-        _ctrl_cl["bleed_rate"] = float(
-            np.clip(0.15 + 0.02 * _vcd_err, 0.05, 0.25)
-        )
+        _ctrl_cl["bleed_rate"] = float(np.clip(0.15 + 0.02 * _vcd_err, 0.05, 0.25))
         _one_day = _integrate_run(_kin, _state_cl, _ctrl_cl, n_days=1)
         _state_cl = _one_day[-1].tolist()
         cl_vcd.append(_state_cl[0])

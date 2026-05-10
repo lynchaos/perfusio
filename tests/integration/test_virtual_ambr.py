@@ -48,6 +48,6 @@ def test_five_reactor_ensemble_independent() -> None:
     samples = [asyncio.run(r.read_sample(day=5)) for r in reactors]
     # All VCDs should differ
     vcds = [s.get("VCD", None) for s in samples]
-    assert (
-        len(set(round(v, 6) for v in vcds if v is not None)) > 1
-    ), "All five reactors returned identical VCD; seeds may not be independent."
+    assert len(set(round(v, 6) for v in vcds if v is not None)) > 1, (
+        "All five reactors returned identical VCD; seeds may not be independent."
+    )

@@ -33,6 +33,9 @@ I would be delighted if you could:
 I am happy to add any acknowledgement or authorship as you see fit.
 
 Warm regards,
-[Your name]
-[Your affiliation]
-[Your contact]
+Kemal Yaylali
+Independent Researcher / Developer
+https://kemal.yaylali.uk | support@yaylali.uk
+GitHub: https://github.com/lynchaos
+X: https://x.com/kmlyyll
+LinkedIn: https://www.linkedin.com/in/kemalyaylali/

@@ -152,12 +152,10 @@ class StepwiseGP:
         stds: list[Tensor] = []
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
             for task_id in range(self.n_species):
-                task_col = torch.full(
-                    (N, 1), float(task_id), dtype=x.dtype, device=x.device
-                )
+                task_col = torch.full((N, 1), float(task_id), dtype=x.dtype, device=x.device)
                 x_task = torch.cat([x, task_col], dim=-1)  # (N, d_input+1)
                 pred = self.likelihood(self.model(x_task))
-                means.append(pred.mean)   # (N,)
+                means.append(pred.mean)  # (N,)
                 stds.append(pred.stddev)  # (N,)
         return torch.stack(means, dim=-1), torch.stack(stds, dim=-1)  # (N, n_species)
 
@@ -231,7 +229,9 @@ class StepwiseGP:
         means_t = torch.stack(means_out, dim=0)  # (horizon, n_species)
         sigmas_t = torch.stack(sigma_out, dim=0)
 
-        z10 = torch.tensor(math.sqrt(2) * math.erfinv(2 * 0.10 - 1), dtype=means_t.dtype)  # ≈ -1.2816
+        z10 = torch.tensor(
+            math.sqrt(2) * math.erfinv(2 * 0.10 - 1), dtype=means_t.dtype
+        )  # ≈ -1.2816
         z90 = -z10  # ≈ +1.2816
         return {
             "mean": means_t,
