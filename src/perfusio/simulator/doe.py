@@ -140,9 +140,9 @@ def latin_hypercube(
     """
     from scipy.stats.qmc import LatinHypercube
 
-    engine = LatinHypercube(  # pyright: ignore[reportCallIssue]
+    engine = LatinHypercube(
         d=n_factors,
-        seed=seed,
+        seed=seed,  # pyright: ignore[reportCallIssue]
         optimization="random-cd" if optimise else None,
     )
     return cast(np.ndarray, engine.random(n=n_runs))
