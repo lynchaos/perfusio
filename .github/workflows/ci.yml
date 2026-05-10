@@ -157,7 +157,8 @@ jobs:
 
       - name: Run figure snapshot tests
         run: |
-          uv run pytest -m "figures" --mpl --mpl-baseline-path=tests/baseline_figures --no-cov -q
+          uv run pytest -m "figures" --mpl --mpl-baseline-path=tests/baseline_figures --no-cov -q \
+            || { code=$?; [ $code -eq 5 ] && echo "No figure tests collected – skipping." || exit $code; }
 
   # ---------------------------------------------------------------------------
   # Build distribution artifacts
