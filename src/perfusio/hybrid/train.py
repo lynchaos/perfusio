@@ -77,7 +77,7 @@ def train_hybrid(
         opt_lbfgs.zero_grad()
         output = model(train_x)
         loss = cast(Tensor, -mll(output, train_y))
-        loss.backward()
+        loss.backward()  # type: ignore[no-untyped-call]
         return loss
 
     try:
