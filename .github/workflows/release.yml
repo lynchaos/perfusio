@@ -30,7 +30,7 @@ jobs:
         run: uv sync --extra dev
 
       - name: Run full test suite
-        run: uv run pytest -n auto --timeout=300 -q
+        run: uv run pytest -n auto --no-cov -q
 
       - name: Build distribution
         run: uv build

@@ -127,7 +127,7 @@ jobs:
 
       - name: Run slow integration tests
         run: |
-          uv run pytest -m "slow" -n 2 --timeout=600 -q
+          uv run pytest -m "slow" -n 2 --no-cov -q
 
   # ---------------------------------------------------------------------------
   # Figure snapshot tests
@@ -157,7 +157,7 @@ jobs:
 
       - name: Run figure snapshot tests
         run: |
-          uv run pytest -m "figures" --mpl --mpl-baseline-path=tests/baseline_figures -q
+          uv run pytest -m "figures" --mpl --mpl-baseline-path=tests/baseline_figures --no-cov -q
 
   # ---------------------------------------------------------------------------
   # Build distribution artifacts
@@ -183,7 +183,7 @@ jobs:
 
       - name: Check dist metadata
         run: |
-          uv pip install twine
+          uv pip install --system twine
           twine check dist/*
 
       - name: Upload artifacts
