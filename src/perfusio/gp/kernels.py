@@ -16,7 +16,7 @@ References
 ----------
 .. [RW2006] Rasmussen, C. E., & Williams, C. K. I. (2006). Gaussian Processes
    for Machine Learning. MIT Press. §4.2.
-.. [CruzBournazou2022] Cruz-Bournazou, M. N., et al. (2022). Digitalizing
+.. [CruzBournazou2022] Cruz-Bournazou, M. N., et al. (2022). Digitizing
    bioprocess development. Current Opinion in Biotechnology, 76, 102764.
 """
 

@@ -63,9 +63,9 @@ class MultiTaskRateGP(ExactGP):
     >>> # Indexed format: N*T rows, last col = task_id
     >>> X = torch.randn(N * T, d + 2)  # d state + 1 day + 1 task_id
     >>> Y = torch.randn(N * T)          # flat scalar targets
-    >>> lik = gpytorch.likelihoods.GaussianLikelihood()
+    >>> likelihood = gpytorch.likelihoods.GaussianLikelihood()
     >>> mean = gpytorch.means.ZeroMean()
-    >>> gp = MultiTaskRateGP(X, Y, lik, mean, n_tasks=T, n_state_dims=d)
+    >>> gp = MultiTaskRateGP(X, Y, likelihood, mean, n_tasks=T, n_state_dims=d)
     """
 
     def __init__(
