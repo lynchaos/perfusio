@@ -245,7 +245,7 @@ def run_twin(
         from perfusio.viz.dashboard.app import push_sample as _push_sample
 
         def _run_dash() -> None:
-            dash_app.run(debug=False, host="127.0.0.1", port=8050)
+            dash_app.run(debug=False, host="127.0.0.1", port="8050")
 
         dash_thread = threading.Thread(target=_run_dash, daemon=False)
         dash_thread.start()

@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from torch import Tensor
 
@@ -94,7 +94,7 @@ class BEDPolicy:
         self,
         c_current: Tensor,
         day: int,
-        surrogate_model: object,
+        surrogate_model: Any,
         best_f: float | None = None,
         seed: int | None = None,
     ) -> BEDDecision:

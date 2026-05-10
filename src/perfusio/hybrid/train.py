@@ -76,7 +76,7 @@ def train_hybrid(
     def closure() -> Tensor:
         opt_lbfgs.zero_grad()
         output = model(train_x)
-        loss = cast(Tensor, -mll(output, train_y))
+        loss = -cast(Tensor, mll(output, train_y))
         loss.backward()  # type: ignore[no-untyped-call]
         return loss
 
@@ -97,7 +97,7 @@ def train_hybrid(
     for step in range(n_iter_adam):
         opt_adam.zero_grad()
         output = model(train_x)
-        loss = -mll(output, train_y)
+        loss = -cast(Tensor, mll(output, train_y))
         loss.backward()
         opt_adam.step()
         if step % 50 == 0:
@@ -139,6 +139,7 @@ def retrain_online(
     to a different-length dataset.
     """
     # Append new observations to the training set
+    assert model.train_inputs is not None
     old_x = model.train_inputs[0]
     old_y = model.train_targets
     augmented_x = torch.cat([old_x, new_x], dim=0)
@@ -154,6 +155,6 @@ def retrain_online(
     for _ in range(n_iter):
         opt.zero_grad()
         output = model(augmented_x)
-        loss = -mll(output, augmented_y)
+        loss = -cast(Tensor, mll(output, augmented_y))
         loss.backward()
         opt.step()

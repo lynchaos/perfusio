@@ -52,14 +52,8 @@ class LinearMean(gpytorch.means.Mean):
     ) -> None:
         super().__init__()
         batch_shape = batch_shape or torch.Size()
-        self.register_parameter(
-            "weights",
-            torch.nn.Parameter(torch.zeros(*batch_shape, input_size, 1)),
-        )
-        self.register_parameter(
-            "bias",
-            torch.nn.Parameter(torch.zeros(*batch_shape, 1)),
-        )
+        self.weights = torch.nn.Parameter(torch.zeros(*batch_shape, input_size, 1))
+        self.bias = torch.nn.Parameter(torch.zeros(*batch_shape, 1))
 
     def forward(self, x: Tensor) -> Tensor:
         """Evaluate the linear mean.
@@ -136,10 +130,7 @@ class MechanisticPriorMean(gpytorch.means.Mean):
         self.species_names = species_names
         self.control_names = control_names
         self.task_index = task_index
-        self.register_parameter(
-            "log_scale",
-            torch.nn.Parameter(torch.tensor(scale).log()),
-        )
+        self.log_scale = torch.nn.Parameter(torch.tensor(scale).log())
 
     @property
     def _scale(self) -> Tensor:

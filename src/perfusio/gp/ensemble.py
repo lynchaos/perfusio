@@ -19,6 +19,7 @@ References
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import gpytorch
 import torch
@@ -196,6 +197,6 @@ def _train_gp(
     for _ in range(n_iter):
         optimiser.zero_grad()
         output = model(train_x)
-        loss = -mll(output, train_y)
+        loss = -cast(Tensor, mll(output, train_y))
         loss.backward()
         optimiser.step()

@@ -22,6 +22,7 @@ References
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import gpytorch
 import torch
@@ -157,7 +158,7 @@ class TransferLearner:
         for _ in range(n_iter):
             optimizer.zero_grad()
             output = self.model(x_aug)
-            loss = -mll(output, train_y)
+            loss = -cast(Tensor, mll(output, train_y))
             loss.backward()
             optimizer.step()
 

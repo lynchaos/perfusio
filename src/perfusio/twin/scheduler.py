@@ -52,7 +52,7 @@ class DailyScheduler:
 
     def __init__(
         self,
-        step_fn: Callable[[int], Coroutine[Any, Any, None]],
+        step_fn: Callable[[int], Coroutine[Any, Any, Any]],
         n_days: int,
         interval_seconds: float = 86400.0,
         start_day: int = 1,

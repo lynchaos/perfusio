@@ -270,7 +270,7 @@ class SQLStore(BioreactorConnectorBase):
             if exp is None:
                 result = s.execute(experiment_table.insert().values(name=self.experiment_name))
                 s.commit()
-                exp_id = result.inserted_primary_key[0]
+                exp_id = result.inserted_primary_key[0]  # pyright: ignore[reportAttributeAccessIssue]
             else:
                 exp_id = exp.id
 
@@ -288,8 +288,9 @@ class SQLStore(BioreactorConnectorBase):
                     )
                 )
                 s.commit()
-                self._reactor_id = result.inserted_primary_key[0]
+                self._reactor_id = result.inserted_primary_key[0]  # pyright: ignore[reportAttributeAccessIssue]
             else:
                 self._reactor_id = reactor.id
 
+        assert self._reactor_id is not None
         return self._reactor_id

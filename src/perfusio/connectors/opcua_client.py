@@ -146,7 +146,7 @@ class OPCUAConnector(BioreactorConnectorBase):
                     client.set_user(self.username)
                     client.set_password(self.password)
                 if self.cert_path:
-                    client.load_client_certificate(self.cert_path)
+                    await client.load_client_certificate(self.cert_path)
                 await client.connect()
                 self._client = client
                 logger.info("OPCUAConnector: connected to %s.", self.url)

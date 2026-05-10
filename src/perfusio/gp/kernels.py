@@ -22,6 +22,8 @@ References
 
 from __future__ import annotations
 
+from typing import Any
+
 import gpytorch
 from gpytorch.kernels import (
     IndexKernel,
@@ -68,7 +70,7 @@ class PerfusionKernel(gpytorch.kernels.Kernel):
     ``x[:, n_state_dims + 1]`` — task index (integer)
     """
 
-    is_stationary: bool = False  # linear kernel breaks stationarity
+    is_stationary: bool = False  # pyright: ignore[reportIncompatibleMethodOverride]  # linear kernel breaks stationarity
 
     def __init__(
         self,
@@ -76,7 +78,7 @@ class PerfusionKernel(gpytorch.kernels.Kernel):
         n_state_dims: int,
         rank: int = 1,
         ard_num_dims: int = 1,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self.n_state_dims = n_state_dims
@@ -91,7 +93,7 @@ class PerfusionKernel(gpytorch.kernels.Kernel):
             active_dims=(n_state_dims + 1,),
         )
 
-    def forward(self, x1: Tensor, x2: Tensor, **params: object) -> Tensor:  # type: ignore[override]
+    def forward(self, x1: Tensor, x2: Tensor, **params: Any) -> Tensor:  # type: ignore[override]
         k_state = self.state_kernel(x1, x2, **params).to_dense()
         k_day = self.day_kernel(x1, x2, **params).to_dense()
         k_task = self.task_kernel(x1, x2, **params).to_dense()
@@ -112,18 +114,18 @@ class ResidualKernel(gpytorch.kernels.Kernel):
         If > 1, uses ARD (one length-scale per input dimension).
     """
 
-    is_stationary: bool = True
+    is_stationary: bool = True  # pyright: ignore[reportIncompatibleMethodOverride]
 
     def __init__(
         self,
         n_state_dims: int,
         ard_num_dims: int = 1,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self.base = ScaleKernel(
             RBFKernel(ard_num_dims=ard_num_dims, active_dims=tuple(range(n_state_dims)))
         )
 
-    def forward(self, x1: Tensor, x2: Tensor, **params: object) -> Tensor:  # type: ignore[override]
-        return self.base(x1, x2, **params).evaluate()
+    def forward(self, x1: Tensor, x2: Tensor, **params: Any) -> Tensor:  # type: ignore[override]
+        return self.base(x1, x2, **params).to_dense()

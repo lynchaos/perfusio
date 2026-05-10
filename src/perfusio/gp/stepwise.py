@@ -230,7 +230,8 @@ class StepwiseGP:
         sigmas_t = torch.stack(sigma_out, dim=0)
 
         z10 = torch.tensor(
-            math.sqrt(2) * math.erfinv(2 * 0.10 - 1), dtype=means_t.dtype
+            math.sqrt(2) * math.erfinv(2 * 0.10 - 1),  # pyright: ignore[reportAttributeAccessIssue]
+            dtype=means_t.dtype,
         )  # ≈ -1.2816
         z90 = -z10  # ≈ +1.2816
         return {

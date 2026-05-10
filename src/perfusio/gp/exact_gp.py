@@ -15,6 +15,8 @@ References
 
 from __future__ import annotations
 
+from typing import cast
+
 import gpytorch
 import torch
 from gpytorch.distributions import MultivariateNormal
@@ -99,7 +101,7 @@ class MultiTaskRateGP(ExactGP):
         MultivariateNormal
             The GP prior (mean + covariance).
         """
-        mean_x = self.mean_module(x)
+        mean_x = cast(Tensor, self.mean_module(x))
         covar_x = self.covar_module(x)
         return MultivariateNormal(mean_x, covar_x)
 
@@ -124,6 +126,7 @@ class MultiTaskRateGP(ExactGP):
             All tensors have shape ``(M,)`` (or ``(M, n_tasks)`` for multitask).
         """
         self.eval()
+        assert self.likelihood is not None
         self.likelihood.eval()
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
             pred = self.likelihood(self(x_new))

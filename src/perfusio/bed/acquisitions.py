@@ -150,6 +150,7 @@ def build_acquisition(
     if name == "qEHVI":
         _require(ref_point, "qEHVI", "ref_point")
         _require(partitioning, "qEHVI", "partitioning")
+        assert ref_point is not None
         return bamo.qExpectedHypervolumeImprovement(
             model=model,
             ref_point=ref_point,
@@ -161,10 +162,11 @@ def build_acquisition(
 
     if name == "qNEHVI":
         _require(ref_point, "qNEHVI", "ref_point")
+        assert ref_point is not None
         # X_baseline defaults to the model's training inputs when not supplied
         _x_bl = kwargs.pop(
             "X_baseline",
-            model.train_inputs[0]
+            model.train_inputs[0]  # pyright: ignore[reportIndexIssue]
             if hasattr(model, "train_inputs") and model.train_inputs
             else None,  # type: ignore[attr-defined]
         )
@@ -186,7 +188,7 @@ def build_acquisition(
     if name == "qNParEGO":
         _x_bl = kwargs.pop(
             "X_baseline",
-            model.train_inputs[0]
+            model.train_inputs[0]  # pyright: ignore[reportIndexIssue]
             if hasattr(model, "train_inputs") and model.train_inputs
             else None,  # type: ignore[attr-defined]
         )

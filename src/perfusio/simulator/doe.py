@@ -140,7 +140,7 @@ def latin_hypercube(
     """
     from scipy.stats.qmc import LatinHypercube
 
-    engine = LatinHypercube(
+    engine = LatinHypercube(  # pyright: ignore[reportCallIssue]
         d=n_factors,
         seed=seed,
         optimization="random-cd" if optimise else None,

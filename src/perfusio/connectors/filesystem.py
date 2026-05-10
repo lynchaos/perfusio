@@ -125,13 +125,15 @@ class FilesystemStore(BioreactorConnectorBase):
             for _, row in df.iterrows():
                 day = int(row["day"])
                 result[day] = {
-                    k: (float(v) if v == v else None) for k, v in row.items() if k != "day"
+                    str(k): (float(v) if v == v else None) for k, v in row.items() if k != "day"
                 }
         else:
             for _, row in df.iterrows():
                 day = int(row["day"])
                 val = row.get("value")
-                result.setdefault(day, {})[str(row["species"])] = float(val) if val == val else None
+                result.setdefault(day, {})[str(row["species"])] = (
+                    float(val) if val is not None and val == val else None
+                )
         return result
 
     def _load_excel(self) -> dict[int, dict[str, Any]]:
@@ -143,11 +145,13 @@ class FilesystemStore(BioreactorConnectorBase):
             for _, row in df.iterrows():
                 day = int(row["day"])
                 result[day] = {
-                    k: (float(v) if v == v else None) for k, v in row.items() if k != "day"
+                    str(k): (float(v) if v == v else None) for k, v in row.items() if k != "day"
                 }
         else:
             for _, row in df.iterrows():
                 day = int(row["day"])
                 val = row.get("value")
-                result.setdefault(day, {})[str(row["species"])] = float(val) if val == val else None
+                result.setdefault(day, {})[str(row["species"])] = (
+                    float(val) if val is not None and val == val else None
+                )
         return result
