@@ -261,7 +261,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:linear_operator",
     "ignore::UserWarning:linear_operator",
     "ignore::UserWarning:gpytorch",
-    "ignore::botorch.exceptions.warnings.NumericsWarning",
+    "ignore::UserWarning:botorch",
 ]
 
 [tool.coverage.run]
