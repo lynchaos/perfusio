@@ -98,7 +98,7 @@ def train_hybrid(
         opt_adam.zero_grad()
         output = model(train_x)
         loss = -cast(Tensor, mll(output, train_y))
-        loss.backward()
+        loss.backward()  # type: ignore[no-untyped-call]
         opt_adam.step()
         if step % 50 == 0:
             logger.debug("Adam step %d | loss=%.4f", step, loss.item())
@@ -156,5 +156,5 @@ def retrain_online(
         opt.zero_grad()
         output = model(augmented_x)
         loss = -cast(Tensor, mll(output, augmented_y))
-        loss.backward()
+        loss.backward()  # type: ignore[no-untyped-call]
         opt.step()
