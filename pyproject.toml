@@ -95,12 +95,9 @@ dev = [
 ]
 docs = [
     "sphinx>=7.3",
+    "furo>=2024.1.29",
     "myst-parser>=3.0",
-    "sphinx-autodoc2>=0.5",
-    "sphinx-gallery>=0.16",
-    "myst-nb>=1.1",
-    "pydata-sphinx-theme>=0.15",
-    "sphinxcontrib-bibtex>=2.6",
+    "nbsphinx>=0.9",
     "sphinx-copybutton>=0.5",
 ]
 
