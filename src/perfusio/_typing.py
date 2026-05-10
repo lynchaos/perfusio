@@ -71,13 +71,13 @@ class BioreactorConnector(Protocol):
     can be tested offline.
     """
 
-    async def read_sample(self, reactor_id: str) -> Mapping[str, float]:
-        """Return the latest at-line sample for *reactor_id*.
+    async def read_sample(self, day: int) -> Mapping[str, float]:
+        """Return the latest at-line sample for *day*.
 
         Parameters
         ----------
-        reactor_id:
-            Unique identifier for the bioreactor (e.g. ``"R01"``).
+        day:
+            Culture day index (1-based).
 
         Returns
         -------
@@ -92,13 +92,11 @@ class BioreactorConnector(Protocol):
         """
         ...
 
-    async def write_setpoints(self, reactor_id: str, setpoints: Mapping[str, float]) -> None:
+    async def write_setpoints(self, setpoints: Mapping[str, float]) -> None:
         """Write control setpoints to the reactor controller.
 
         Parameters
         ----------
-        reactor_id:
-            Target reactor.
         setpoints:
             Control variable name → desired value.
 

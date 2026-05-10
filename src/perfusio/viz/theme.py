@@ -16,6 +16,7 @@ References
 from __future__ import annotations
 
 import matplotlib as mpl
+from cycler import cycler
 
 # ── OKLCH palette converted to sRGB hex ───────────────────────────────────────
 # 8 sequential hues at L≈0.70, C≈0.17, spaced 45° apart from 250°
@@ -56,7 +57,7 @@ _RCPARAMS: dict[str, object] = {
     "axes.spines.top": False,
     "axes.spines.right": False,
     "axes.linewidth": 0.8,
-    "axes.prop_cycle": mpl.cycler(color=PALETTE),
+    "axes.prop_cycle": cycler(color=PALETTE),
     "axes.titlesize": 11,
     "axes.labelsize": 10,
     "axes.titleweight": "bold",

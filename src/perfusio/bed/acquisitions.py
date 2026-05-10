@@ -23,10 +23,21 @@ References
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any
 
 import botorch.acquisition as ba
 import botorch.acquisition.multi_objective as bamo
 import torch
+from botorch.acquisition.analytic import (
+    ExpectedImprovement,
+    LogExpectedImprovement,
+    ProbabilityOfImprovement,
+    UpperConfidenceBound,
+)
+from botorch.acquisition.monte_carlo import (
+    qExpectedImprovement,
+    qUpperConfidenceBound,
+)
 from botorch.acquisition.multi_objective.parego import qLogNParEGO
 from botorch.models.model import Model
 from torch import Tensor
@@ -44,10 +55,10 @@ def build_acquisition(
     best_f: float | None = None,
     beta: float = 0.2,
     ref_point: list[float] | None = None,
-    partitioning: object | None = None,
-    sampler: object | None = None,
+    partitioning: Any = None,
+    sampler: Any = None,
     constraints: list[Callable[[Tensor], Tensor]] | None = None,
-    **kwargs: object,
+    **kwargs: Any,
 ) -> ba.AcquisitionFunction:
     """Construct a BoTorch acquisition function by name.
 
@@ -99,40 +110,41 @@ def build_acquisition(
     # ── Analytic single-objective ──────────────────────────────────────────
     if name == "PI":
         _require(best_f, "PI", "best_f")
-        return ba.analytic.ProbabilityOfImprovement(model=model, best_f=best_f, **kwargs)
+        assert best_f is not None
+        return ProbabilityOfImprovement(model=model, best_f=best_f, **kwargs)
 
     if name == "EI":
         _require(best_f, "EI", "best_f")
-        return ba.analytic.ExpectedImprovement(model=model, best_f=best_f, **kwargs)
+        assert best_f is not None
+        return ExpectedImprovement(model=model, best_f=best_f, **kwargs)
 
     if name == "LogEI":
         _require(best_f, "LogEI", "best_f")
-        return ba.analytic.LogExpectedImprovement(model=model, best_f=best_f, **kwargs)
+        assert best_f is not None
+        return LogExpectedImprovement(model=model, best_f=best_f, **kwargs)
 
     if name == "UCB":
-        return ba.analytic.UpperConfidenceBound(model=model, beta=beta, **kwargs)
+        return UpperConfidenceBound(model=model, beta=beta, **kwargs)
 
     # ── MC single-objective ────────────────────────────────────────────────
     if name == "qEI":
         _require(best_f, "qEI", "best_f")
+        assert best_f is not None
         if constraints:
-            return ba.monte_carlo.qExpectedImprovement(
+            return qExpectedImprovement(
                 model=model, best_f=best_f, sampler=sampler, constraints=constraints, **kwargs
             )
-        return ba.monte_carlo.qExpectedImprovement(
-            model=model, best_f=best_f, sampler=sampler, **kwargs
-        )
+        return qExpectedImprovement(model=model, best_f=best_f, sampler=sampler, **kwargs)
 
     if name == "qLogEI":
         _require(best_f, "qLogEI", "best_f")
+        assert best_f is not None
         from botorch.acquisition.logei import qLogExpectedImprovement
 
         return qLogExpectedImprovement(model=model, best_f=best_f, sampler=sampler, **kwargs)
 
     if name == "qUCB":
-        return ba.monte_carlo.qUpperConfidenceBound(
-            model=model, beta=beta, sampler=sampler, **kwargs
-        )
+        return qUpperConfidenceBound(model=model, beta=beta, sampler=sampler, **kwargs)
 
     # ── Multi-objective MC ─────────────────────────────────────────────────
     if name == "qEHVI":

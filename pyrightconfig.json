@@ -1,0 +1,4 @@
+{
+  "include": ["src/perfusio"],
+  "reportPrivateImportUsage": "none"
+}

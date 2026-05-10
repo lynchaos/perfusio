@@ -188,4 +188,4 @@ def push_bed_decision(control: str, value: float, acqf_name: str) -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=8050)
+    app.run(debug=True, host="127.0.0.1", port="8050")
