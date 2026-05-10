@@ -1,0 +1,67 @@
+cff-version: 1.2.0
+message: "If you use perfusio, please cite the following works."
+title: "perfusio: Self-Driving Perfusion Bioprocess Reference Implementation"
+version: "0.1.0"
+license: Apache-2.0
+repository-code: "https://github.com/your-org/perfusio"
+abstract: >
+  perfusio is an open-source Python library providing a peer-reviewable
+  reference implementation of the self-driving perfusion methodology of
+  Gadiyar et al. (2026), including stepwise GP hybrid models, entity-embedding
+  transfer learning, and 11 Bayesian experimental design acquisitions.
+
+references:
+  - type: article
+    authors:
+      - family-names: Gadiyar
+        given-names: Chiraag J.
+    title: "Self-Driving Development of Perfusion Processes for Monoclonal Antibody Production"
+    journal: "Biotechnology and Bioengineering"
+    year: 2026
+    volume: 123
+    issue: 2
+    start: 391
+    end: 405
+    doi: "10.1002/bit.28631"
+
+  - type: article
+    authors:
+      - family-names: Hutter
+        given-names: Simone
+    title: "Clone selection in cell culture development using multi-objective Bayesian optimisation with entity-embedding transfer learning"
+    journal: "Computers & Chemical Engineering"
+    year: 2021
+    volume: 151
+    pages: "107373"
+    doi: "10.1016/j.compchemeng.2021.107373"
+
+  - type: article
+    authors:
+      - family-names: Cruz-Bournazou
+        given-names: Mariano N.
+    title: "Online model-based experimental design in bioprocess development"
+    journal: "Digital Chemical Engineering"
+    year: 2022
+    volume: 1
+    pages: "100005"
+
+  - type: article
+    authors:
+      - family-names: Liu
+        given-names: Yang
+      - family-names: Gunawan
+        given-names: Rudiyanto
+    title: "Bioprocess optimization under uncertainty using ensemble modeling"
+    journal: "Journal of Biotechnology"
+    year: 2017
+    volume: 244
+    start: 34
+    end: 44
+
+  - type: report
+    authors:
+      - family-names: Mione
+        given-names: Mattia
+    title: "Perfusion digital twin: a framework for online model-based control"
+    institution: "ETH Zürich"
+    year: 2024

@@ -1,0 +1,192 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly run on Monday 07:00 UTC to catch upstream breakage
+    - cron: "0 7 * * 1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Force CPU-only torch to avoid GPU matrix complexity
+  PIP_EXTRA_INDEX_URL: https://download.pytorch.org/whl/cpu
+  TORCH_DEVICE: cpu
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint & type-check (fast, single OS)
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint & type-check
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dev dependencies
+        run: uv sync --extra dev
+
+      - name: ruff lint
+        run: uv run ruff check src/ tests/ examples/
+
+      - name: ruff format check
+        run: uv run ruff format --check src/ tests/ examples/
+
+      - name: mypy
+        run: uv run mypy --strict src/perfusio
+
+      - name: pyright
+        run: uv run pyright src/perfusio
+
+      - name: codespell
+        run: uv run codespell src/ tests/ docs/ --skip="*.lock,*.svg"
+
+  # ---------------------------------------------------------------------------
+  # Tests — full OS × Python matrix
+  # ---------------------------------------------------------------------------
+  tests:
+    name: Tests (${{ matrix.os }}, py${{ matrix.python-version }})
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-14, windows-2022]
+        python-version: ["3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run tests (excluding slow/hardware/figures)
+        run: |
+          uv run pytest -n auto -m "not slow and not hardware and not figures" \
+            --cov=perfusio --cov-report=xml --cov-branch -q
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          fail_ci_if_error: true
+
+  # ---------------------------------------------------------------------------
+  # Slow integration tests (only Ubuntu + Python 3.12)
+  # ---------------------------------------------------------------------------
+  integration:
+    name: Integration tests
+    needs: tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run slow integration tests
+        run: |
+          uv run pytest -m "slow" -n 2 --timeout=600 -q
+
+  # ---------------------------------------------------------------------------
+  # Figure snapshot tests
+  # ---------------------------------------------------------------------------
+  figures:
+    name: Figure snapshot tests
+    needs: tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install apt packages for matplotlib fonts
+        run: sudo apt-get install -y fonts-dejavu
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Run figure snapshot tests
+        run: |
+          uv run pytest -m "figures" --mpl --mpl-baseline-path=tests/baseline_figures -q
+
+  # ---------------------------------------------------------------------------
+  # Build distribution artifacts
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build distribution
+    needs: tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Check dist metadata
+        run: |
+          uv pip install twine
+          twine check dist/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
