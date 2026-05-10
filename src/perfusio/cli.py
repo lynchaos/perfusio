@@ -133,7 +133,6 @@ def train(
     from perfusio.gp.exact_gp import MultiTaskRateGP
     from perfusio.gp.stepwise import StepwiseGP
     from perfusio.hybrid.model import HybridStateSpaceModel
-    from perfusio.hybrid.train import train_hybrid
     from perfusio.mechanistic.models import CHOPerfusionModel
 
     xs_base, ys_base = [], []
@@ -310,10 +309,10 @@ def reproduce_figures(
 
     titer_vals = [r["trajectory"][-1, 8] for r in runs]
     vcv_vals = [r["trajectory"][-1, 0] * r["trajectory"][-1, 1] / 100.0 for r in runs]
-    _Y = _torch.tensor(list(zip(titer_vals, vcv_vals)), dtype=_torch.float64)
+    _Y = _torch.tensor(list(zip(titer_vals, vcv_vals, strict=True)), dtype=_torch.float64)
     _pareto_mask = _cpf(_Y)
-    pareto_titer = [v for v, m in zip(titer_vals, _pareto_mask.tolist()) if m]
-    pareto_vcv = [v for v, m in zip(vcv_vals, _pareto_mask.tolist()) if m]
+    pareto_titer = [v for v, m in zip(titer_vals, _pareto_mask.tolist(), strict=True) if m]
+    pareto_vcv = [v for v, m in zip(vcv_vals, _pareto_mask.tolist(), strict=True) if m]
     f7 = fig7_pareto_front(
         pareto_titer,
         pareto_vcv,
@@ -333,9 +332,9 @@ def reproduce_figures(
     # not the open-loop fixed-control trajectory of runs[0].
     typer.echo("Generating Fig. 8…")
     from perfusio.mechanistic.integrators import integrate_run as _integrate_run
-    from perfusio.mechanistic.kinetics import CHOKinetics as _KIN
+    from perfusio.mechanistic.kinetics import CHOKinetics as _CHOKinetics
 
-    _kin = _KIN(consumes_lactate=True)
+    _kin = _CHOKinetics(consumes_lactate=True)
     _y0_cl = [1.0, 99.0, 5.0, 4.0, 0.5, 2.0, 0.5, 0.0, 0.0]
     _ctrl_cl: dict = {
         "perfusion_rate": 0.5,

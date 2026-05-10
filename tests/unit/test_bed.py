@@ -14,7 +14,7 @@ import pytest
 import torch
 
 
-@pytest.fixture()
+@pytest.fixture
 def tiny_model() -> object:
     """A minimal BoTorch SingleTaskGP for acquisition testing."""
     import gpytorch
@@ -31,7 +31,7 @@ def tiny_model() -> object:
     return gp
 
 
-@pytest.fixture()
+@pytest.fixture
 def tiny_mo_model() -> object:
     """Multi-output GP for multi-objective acquisition testing."""
     import gpytorch
@@ -48,7 +48,7 @@ def tiny_mo_model() -> object:
     return gp
 
 
-@pytest.fixture()
+@pytest.fixture
 def design_space() -> object:
     from perfusio.config import ControlBounds, DesignSpace
 

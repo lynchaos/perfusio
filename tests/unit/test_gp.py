@@ -13,7 +13,7 @@ import pytest
 import torch
 
 
-@pytest.fixture()
+@pytest.fixture
 def simple_xy() -> tuple[torch.Tensor, torch.Tensor]:
     """10 training points, 3 species."""
     torch.manual_seed(0)

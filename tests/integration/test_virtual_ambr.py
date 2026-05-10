@@ -16,7 +16,7 @@ import pytest
 pytestmark = pytest.mark.slow
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_30day_virtual_ambr() -> None:
     """VCD should be within ±30% of target after 20 days."""
     from perfusio.connectors.ambr250_emulator import Ambr250Emulator

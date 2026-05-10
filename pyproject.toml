@@ -143,8 +143,6 @@ ignore = [
     "D102",   # Missing docstring in public method (pre-existing)
     "D104",   # Missing docstring in public package (pre-existing)
     "D401",   # First line imperative mood (over-restrictive for properties)
-    "ANN101", # Missing type annotation for self (deprecated rule)
-    "ANN102", # Missing type annotation for cls (deprecated rule)
     "ANN401", # Allow Any in _typing.py
     "N803",   # Scientific variables are conventionally uppercase (X, Y, V, T, ...)
     "N806",   # Scientific variables are conventionally uppercase
@@ -164,7 +162,6 @@ ignore = [
     "F841",   # Local unused var in complex functions — pre-existing
     "UP042",  # StrEnum migration — breaking change, keep str+Enum
     "RUF012", # ClassVar annotation — pre-existing dataclass patterns
-    "PD901",  # df variable name — acceptable for short-lived DataFrame vars
     "PD011",  # Use .to_numpy() — pre-existing code style
 ]
 

@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_runs(tmp_path: pathlib.Path) -> list[dict]:
     """24-run Box-Behnken output for figure tests."""
     from perfusio.simulator.cho_perfusion import CHOSimulator

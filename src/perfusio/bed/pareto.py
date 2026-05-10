@@ -1,6 +1,7 @@
 """Pareto front computation and hypervolume indicator.
 
 Provides:
+
 - :func:`compute_pareto_front`: identify non-dominated points.
 - :func:`hypervolume`: Hypervolume dominated by the Pareto front w.r.t. a
   reference point.

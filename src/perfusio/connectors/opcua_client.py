@@ -1,6 +1,7 @@
 """OPC UA connector for real bioreactor hardware.
 
 Wraps the ``asyncua`` async OPC UA client with:
+
 - Auto-reconnect with exponential backoff (max 5 retries).
 - Browse-tree caching (resolved node IDs are stored to avoid repeated discovery).
 - Recorded-replay mode (saves/loads OPC UA values from a JSONL log file for
