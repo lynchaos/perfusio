@@ -4,28 +4,26 @@
 from __future__ import annotations
 
 import pathlib
-import sys
 import sysconfig
 
 import pytest
 
 
 def _patch_pyro_stats() -> None:
-    """Patch pyro/ops/stats.py for Python 3.13+ compile-time SyntaxError.
+    """Patch pyro/ops/stats.py to fix a compile-time SyntaxError on all Python versions.
 
     pyro-ppl 1.9.1 contains an invalid escape sequence (``\\ge``) in a
-    docstring in ``pyro/ops/stats.py``.  Python 3.13 promotes invalid escape
-    sequences from a DeprecationWarning to a hard SyntaxError raised during
-    bytecode compilation — before any import hook or filterwarnings filter
-    can intercept it.  This function rewrites the file on disk before test
-    collection triggers the transitive import chain through gpytorch→pyro.
+    docstring in ``pyro/ops/stats.py``.  With ``filterwarnings = ["error"]``
+    in pyproject.toml the SyntaxWarning is promoted to a SyntaxError raised
+    during bytecode compilation — before any import hook or filterwarnings
+    filter can intercept it — on Python 3.11, 3.12, and 3.13.  This function
+    rewrites the file on disk before test collection triggers the transitive
+    import chain through gpytorch→pyro.
 
     The replacement is idempotent: after the first patch the needle
     ``') \\ge E'`` (one backslash) is not present in the fixed text
     ``') \\\\ge E'`` (two backslashes), so subsequent runs are no-ops.
     """
-    if sys.version_info < (3, 13):
-        return
     site_packages = pathlib.Path(sysconfig.get_path("purelib"))
     stats_file = site_packages / "pyro" / "ops" / "stats.py"
     if not stats_file.exists():
