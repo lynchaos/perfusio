@@ -130,10 +130,15 @@ class StepwiseGP:
     def _predict_one_step(self, x: Tensor) -> tuple[Tensor, Tensor]:
         """Return posterior mean and std-dev for one step.
 
+        The GP uses the indexed multi-task paradigm: the last input column
+        carries the task_id (species index).  We query each species separately
+        by appending the corresponding task_id and then stack the results.
+
         Parameters
         ----------
         x:
-            GP input, shape ``(N, d_input)``.
+            GP input *without* task_id, shape ``(N, d_input)`` where
+            ``d_input = n_species + n_controls + 1 (day)``.
 
         Returns
         -------
@@ -142,9 +147,19 @@ class StepwiseGP:
         """
         self.model.eval()
         self.likelihood.eval()
+        N = x.shape[0]
+        means: list[Tensor] = []
+        stds: list[Tensor] = []
         with torch.no_grad(), gpytorch.settings.fast_pred_var():
-            pred = self.likelihood(self.model(x))
-        return pred.mean, pred.stddev
+            for task_id in range(self.n_species):
+                task_col = torch.full(
+                    (N, 1), float(task_id), dtype=x.dtype, device=x.device
+                )
+                x_task = torch.cat([x, task_col], dim=-1)  # (N, d_input+1)
+                pred = self.likelihood(self.model(x_task))
+                means.append(pred.mean)   # (N,)
+                stds.append(pred.stddev)  # (N,)
+        return torch.stack(means, dim=-1), torch.stack(stds, dim=-1)  # (N, n_species)
 
     def _rollout_mc(
         self,
@@ -208,7 +223,7 @@ class StepwiseGP:
             mu = mu.squeeze(0)
             sigma = sigma.squeeze(0)
             c_mean = mu
-            c_var = sigma ** 2 + c_var  # accumulate variance (independent approx)
+            c_var = sigma**2 + c_var  # accumulate variance (independent approx)
             c_mean = c_mean.clamp(min=0.0)
             means_out.append(c_mean.clone())
             sigma_out.append(c_var.sqrt().clone())
@@ -216,8 +231,8 @@ class StepwiseGP:
         means_t = torch.stack(means_out, dim=0)  # (horizon, n_species)
         sigmas_t = torch.stack(sigma_out, dim=0)
 
-        z10 = torch.tensor(math.log(0.10 / (1 - 0.10)), dtype=means_t.dtype)
-        z90 = -z10
+        z10 = torch.tensor(math.sqrt(2) * math.erfinv(2 * 0.10 - 1), dtype=means_t.dtype)  # ≈ -1.2816
+        z90 = -z10  # ≈ +1.2816
         return {
             "mean": means_t,
             "q10": means_t + z10 * sigmas_t,

@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import csv
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -127,6 +126,7 @@ class AuditLogger:
         """Write the full CSV as a Parquet snapshot (requires pyarrow)."""
         try:
             import pandas as pd
+
             df = pd.read_csv(self._csv_path)
             parquet_path = self.log_dir / "audit_events.parquet"
             df.to_parquet(parquet_path, index=False)

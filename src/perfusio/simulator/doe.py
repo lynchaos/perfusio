@@ -89,9 +89,9 @@ def central_composite(
 
     # Axial (star) points
     if alpha == "rotatable":
-        alpha_val = (2 ** n_factors) ** 0.25
+        alpha_val = (2**n_factors) ** 0.25
     else:
-        alpha_val = (n_factors ** 0.5)
+        alpha_val = n_factors**0.5
 
     star = []
     for i in range(n_factors):

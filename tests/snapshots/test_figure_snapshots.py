@@ -10,12 +10,14 @@ via ``pytest-image-snapshot`` with a 2% threshold.
 
 from __future__ import annotations
 
+import pathlib
+
 import numpy as np
 import pytest
 
 
 @pytest.fixture()
-def dummy_runs(tmp_path: "pathlib.Path") -> list[dict]:
+def dummy_runs(tmp_path: pathlib.Path) -> list[dict]:
     """24-run Box-Behnken output for figure tests."""
     from perfusio.simulator.cho_perfusion import CHOSimulator
 
@@ -31,6 +33,7 @@ def test_fig4_returns_figure(dummy_runs: list) -> None:
     fig = fig4_training_trajectories(dummy_runs, alt_text=False)
     assert isinstance(fig, matplotlib.figure.Figure)
     import matplotlib.pyplot as plt
+
     plt.close(fig)
 
 
@@ -44,6 +47,7 @@ def test_fig7_returns_figure(dummy_runs: list) -> None:
     fig = fig7_pareto_front(titer, vcv, alt_text=False)
     assert isinstance(fig, matplotlib.figure.Figure)
     import matplotlib.pyplot as plt
+
     plt.close(fig)
 
 
@@ -59,4 +63,5 @@ def test_fig8_returns_figure() -> None:
     fig = fig8_closed_loop_performance(days, vcd, 10.0, glc, 5.0, titer, 500.0, alt_text=False)
     assert isinstance(fig, matplotlib.figure.Figure)
     import matplotlib.pyplot as plt
+
     plt.close(fig)

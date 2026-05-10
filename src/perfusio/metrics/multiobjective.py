@@ -18,7 +18,6 @@ References
 
 from __future__ import annotations
 
-import torch
 from torch import Tensor
 
 
@@ -39,6 +38,7 @@ def hypervolume_indicator(Y: Tensor, ref_point: Tensor) -> float:
     float
     """
     from perfusio.bed.pareto import hypervolume
+
     return hypervolume(Y, ref_point)
 
 
@@ -75,9 +75,9 @@ def igd_plus(
     # For each reference point r, find min_a || max(r-a, 0) ||_2
     # Shape: (K, M, n_obj)
     diff = reference.unsqueeze(1) - approx.unsqueeze(0)  # (K, M, n_obj)
-    diff_clipped = diff.clamp(min=0.0)                    # only penalise shortfall
-    dists = diff_clipped.norm(dim=2)                      # (K, M)
-    min_dists = dists.min(dim=1).values                   # (K,)
+    diff_clipped = diff.clamp(min=0.0)  # only penalise shortfall
+    dists = diff_clipped.norm(dim=2)  # (K, M)
+    min_dists = dists.min(dim=1).values  # (K,)
     return float(min_dists.mean().item())
 
 
@@ -107,6 +107,6 @@ def epsilon_indicator(
     """
     # For each r and a: max over objectives of (r_k - a_k)
     diff = reference.unsqueeze(1) - approx.unsqueeze(0)  # (K, M, n_obj)
-    max_diff = diff.max(dim=2).values                     # (K, M)
-    min_over_a = max_diff.min(dim=1).values               # (K,)
+    max_diff = diff.max(dim=2).values  # (K, M)
+    min_over_a = max_diff.min(dim=1).values  # (K,)
     return float(min_over_a.max().item())

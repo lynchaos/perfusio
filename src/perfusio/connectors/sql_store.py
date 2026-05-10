@@ -216,7 +216,7 @@ class SQLStore(BioreactorConnectorBase):
             with Session(self._engine) as s:
                 s.execute(select(1))
             return True
-        except Exception:  # noqa: BLE001
+        except Exception:
             return False
 
     # ── Write helpers ──────────────────────────────────────────────────────
@@ -265,14 +265,10 @@ class SQLStore(BioreactorConnectorBase):
 
         with Session(self._engine) as s:
             exp = s.execute(
-                select(experiment_table.c.id).where(
-                    experiment_table.c.name == self.experiment_name
-                )
+                select(experiment_table.c.id).where(experiment_table.c.name == self.experiment_name)
             ).fetchone()
             if exp is None:
-                result = s.execute(
-                    experiment_table.insert().values(name=self.experiment_name)
-                )
+                result = s.execute(experiment_table.insert().values(name=self.experiment_name))
                 s.commit()
                 exp_id = result.inserted_primary_key[0]
             else:

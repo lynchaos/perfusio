@@ -123,7 +123,7 @@ class MechanisticPriorMean(gpytorch.means.Mean):
 
     def __init__(
         self,
-        mech_model: "CHOPerfusionModel",
+        mech_model: CHOPerfusionModel,
         n_species: int,
         species_names: list[str],
         control_names: list[str],

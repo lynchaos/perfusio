@@ -27,7 +27,7 @@ import torch
 from torch import Tensor
 
 if TYPE_CHECKING:
-    from perfusio.chemistry.species import SpeciesRegistry
+    pass
 
 
 @dataclass
@@ -128,7 +128,7 @@ class State:
         reactor_id: str = "R00",
         clone_id: str = "unknown",
         run_id: str = "unknown",
-    ) -> "State":
+    ) -> State:
         """Reconstruct a :class:`State` from a flat tensor.
 
         Parameters
@@ -332,7 +332,7 @@ class Trajectory:
         """Number of control variables."""
         return int(self.controls.shape[1])
 
-    def to(self, device: torch.device | str) -> "Trajectory":
+    def to(self, device: torch.device | str) -> Trajectory:
         """Return a copy with all tensors moved to *device*.
 
         Parameters
@@ -357,7 +357,7 @@ class Trajectory:
             metadata=self.metadata.copy(),
         )
 
-    def slice_days(self, start: int, end: int) -> "Trajectory":
+    def slice_days(self, start: int, end: int) -> Trajectory:
         """Return a sub-trajectory for days in ``[start, end)``.
 
         Parameters
@@ -396,6 +396,7 @@ class Trajectory:
         Returns
         -------
         int
+
         Raises
         ------
         KeyError
@@ -404,10 +405,7 @@ class Trajectory:
         try:
             return self.species_names.index(name)
         except ValueError as exc:
-            msg = (
-                f"Species '{name}' not found in trajectory. "
-                f"Available: {self.species_names}"
-            )
+            msg = f"Species '{name}' not found in trajectory. " f"Available: {self.species_names}"
             raise KeyError(msg) from exc
 
     def get_species(self, name: str) -> Tensor:

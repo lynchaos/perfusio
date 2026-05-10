@@ -9,12 +9,11 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
 import torch
 
-from perfusio.chemistry.species import SpeciesEnum, SpeciesRegistry
 from perfusio.chemistry.balances import DiscreteMassBalance
-from perfusio.chemistry.volumes import perfusion_volume_step, constant_volume_harvest_rate
+from perfusio.chemistry.species import SpeciesEnum, SpeciesRegistry
+from perfusio.chemistry.volumes import constant_volume_harvest_rate, perfusion_volume_step
 
 
 class TestSpeciesEnum:

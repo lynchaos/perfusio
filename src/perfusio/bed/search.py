@@ -21,12 +21,13 @@ from torch import Tensor
 
 if TYPE_CHECKING:
     import botorch.acquisition as ba
+
     from perfusio.config import DesignSpace
 
 
 def optimise_acquisition(
-    acqf: "ba.AcquisitionFunction",
-    design_space: "DesignSpace",
+    acqf: ba.AcquisitionFunction,
+    design_space: DesignSpace,
     q: int = 1,
     n_restarts: int = 10,
     n_raw_samples: int = 512,
@@ -70,7 +71,6 @@ def optimise_acquisition(
 
     bounds_lo, bounds_hi = design_space.bounds_tensor
     bounds = torch.stack([bounds_lo, bounds_hi]).to(dtype=dtype, device=device)
-    n_controls = design_space.n_controls
 
     gen_kwargs: dict[str, object] = {}
     if seed is not None:
@@ -78,6 +78,7 @@ def optimise_acquisition(
 
     if fixed_features:
         from botorch.optim import optimize_acqf_mixed
+
         candidates, values = optimize_acqf_mixed(
             acq_function=acqf,
             bounds=bounds,

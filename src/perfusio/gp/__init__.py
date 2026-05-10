@@ -17,9 +17,9 @@ from perfusio.gp.stepwise import StepwiseGP
 
 __all__ = [
     "JackknifeEnsemble",
+    "MechanisticPriorMean",
     "MultiTaskRateGP",
     "PerfusionKernel",
-    "MechanisticPriorMean",
-    "ZeroMeanMultiTask",
     "StepwiseGP",
+    "ZeroMeanMultiTask",
 ]

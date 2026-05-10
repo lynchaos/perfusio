@@ -19,7 +19,6 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import time
 from pathlib import Path
 from typing import Any
 
@@ -100,7 +99,7 @@ class OPCUAConnector(BioreactorConnectorBase):
                 node = await self._resolve_node(node_id)
                 val = await node.read_value()
                 sample[name] = float(val)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.warning("OPC UA read failed for node %s.", node_id)
                 sample[name] = None
         return sample
@@ -117,10 +116,13 @@ class OPCUAConnector(BioreactorConnectorBase):
                 continue
             try:
                 from asyncua import ua  # type: ignore[import]
+
                 node = await self._resolve_node(node_id)
-                await node.write_value(ua.DataValue(ua.Variant(float(value), ua.VariantType.Double)))
+                await node.write_value(
+                    ua.DataValue(ua.Variant(float(value), ua.VariantType.Double))
+                )
                 logger.info("OPCUAConnector: wrote %s = %.4f", name, value)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.exception("OPCUAConnector: write failed for node %s.", node_id)
 
     async def is_alive(self) -> bool:
@@ -137,6 +139,7 @@ class OPCUAConnector(BioreactorConnectorBase):
         for attempt in range(1, self.max_retries + 1):
             try:
                 from asyncua import Client  # type: ignore[import]
+
                 client = Client(url=self.url)
                 if self.username and self.password:
                     client.set_user(self.username)
@@ -147,10 +150,11 @@ class OPCUAConnector(BioreactorConnectorBase):
                 self._client = client
                 logger.info("OPCUAConnector: connected to %s.", self.url)
                 return
-            except Exception:  # noqa: BLE001
+            except Exception:
                 logger.warning(
                     "OPCUAConnector: connection attempt %d/%d failed.",
-                    attempt, self.max_retries,
+                    attempt,
+                    self.max_retries,
                 )
                 if attempt < self.max_retries:
                     await asyncio.sleep(delay)
@@ -169,7 +173,7 @@ class OPCUAConnector(BioreactorConnectorBase):
         if self._client is not None:
             try:
                 await self._client.disconnect()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass
             self._client = None
             logger.info("OPCUAConnector: disconnected.")
@@ -193,5 +197,6 @@ class OPCUAConnector(BioreactorConnectorBase):
                 self._replay_data[day][name] = value
         logger.info(
             "OPCUAConnector: loaded replay log with %d days from %s.",
-            len(self._replay_data), self.replay_log,
+            len(self._replay_data),
+            self.replay_log,
         )

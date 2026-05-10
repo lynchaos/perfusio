@@ -18,7 +18,6 @@ References
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -50,19 +49,21 @@ class NoiseModel:
     >>> noisy = nm.apply(clean, day=7)
     """
 
-    cv_by_species: dict[str, float] = field(default_factory=lambda: {
-        "VCD":   0.05,
-        "VCV":   0.05,
-        "Via":   0.02,
-        "Diam":  0.03,
-        "Glc":   0.07,
-        "Gln":   0.07,
-        "Glu":   0.07,
-        "Lac":   0.07,
-        "Amm":   0.07,
-        "Pyr":   0.07,
-        "Titer": 0.08,
-    })
+    cv_by_species: dict[str, float] = field(
+        default_factory=lambda: {
+            "VCD": 0.05,
+            "VCV": 0.05,
+            "Via": 0.02,
+            "Diam": 0.03,
+            "Glc": 0.07,
+            "Gln": 0.07,
+            "Glu": 0.07,
+            "Lac": 0.07,
+            "Amm": 0.07,
+            "Pyr": 0.07,
+            "Titer": 0.08,
+        }
+    )
     default_cv: float = 0.07
     missing_prob: float = 0.05
     jitter_hours: float = 1.0
@@ -74,7 +75,7 @@ class NoiseModel:
     def apply(
         self,
         state: dict[str, float],
-        day: int,  # noqa: ARG002 — future use for time-varying noise
+        day: int,  # — future use for time-varying noise
     ) -> dict[str, float | None]:
         """Apply noise and missing-data to a clean state observation.
 

@@ -11,8 +11,8 @@ Run::
 
 from __future__ import annotations
 
-import asyncio
 import argparse
+import asyncio
 
 from perfusio.config import DEFAULT_AMBR250_DESIGN_SPACE, RunConfig
 from perfusio.connectors.opcua_client import OPCUAConnector

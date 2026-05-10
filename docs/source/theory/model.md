@@ -10,27 +10,23 @@ The core model is a **hybrid state-space model** that combines:
 
 ## Mechanistic Model
 
-The CHO perfusion model tracks $n = 13$ state variables:
+The CHO perfusion model tracks $n = 9$ state variables:
 
 $$
-\mathbf{x}(t) \in \mathbb{R}^{13}
+\mathbf{x}(t) \in \mathbb{R}^{9}
 $$
 
 | Index | Symbol | Units |
 |-------|--------|-------|
-| 0 | $X_v$ | $10^6$ cells mL$^{-1}$ |
-| 1 | $X_d$ | $10^6$ cells mL$^{-1}$ |
-| 2 | $S_{\text{glc}}$ | g L$^{-1}$ |
-| 3 | $S_{\text{lac}}$ | g L$^{-1}$ |
-| 4 | $S_{\text{gln}}$ | mmol L$^{-1}$ |
-| 5 | $S_{\text{glu}}$ | mmol L$^{-1}$ |
-| 6 | $S_{\text{asn}}$ | mmol L$^{-1}$ |
-| 7 | $S_{\text{asp}}$ | mmol L$^{-1}$ |
-| 8 | $P$ | mg L$^{-1}$ |
-| 9 | $O_2$ | % |
-| 10 | $CO_2$ | mmHg |
-| 11 | $\text{osm}$ | mOsm kg$^{-1}$ |
-| 12 | $V$ | L |
+| 0 | $X_v$ (VCD) | $10^6$ cells mL$^{-1}$ |
+| 1 | $X_d$ (Viability) | fraction |
+| 2 | $S_{\text{glc}}$ (Glucose) | g L$^{-1}$ |
+| 3 | $S_{\text{gln}}$ (Glutamine) | mmol L$^{-1}$ |
+| 4 | $S_{\text{glu}}$ (Glutamate) | mmol L$^{-1}$ |
+| 5 | $S_{\text{lac}}$ (Lactate) | mmol L$^{-1}$ |
+| 6 | $S_{\text{amm}}$ (Ammonia) | mmol L$^{-1}$ |
+| 7 | $S_{\text{pyr}}$ (Pyruvate) | mmol L$^{-1}$ |
+| 8 | $P$ (Titer) | mg L$^{-1}$ |
 
 ### Growth Kinetics
 
@@ -78,14 +74,25 @@ harvest dilution rate.
 
 ## Stepwise-GP Residual Layer
 
-The SW-GP corrects residuals over a rolling window of $w$ past days:
+The SW-GP predicts the next absolute state $\mathbf{c}_{t+1}$ directly (not a rate
+residual), trained on one-step pairs $(\mathbf{c}_t, \mathbf{u}_t, t) \to \mathbf{c}_{t+1}$:
 
 $$
-\Delta \mathbf{x}(t) = f_{\text{GP}}(\mathbf{x}(t-w:t),\;\mathbf{u})
+\mathbf{c}_{t+1} = f_{\text{GP}}(\mathbf{c}_t,\;\mathbf{u}_t,\;t)
 $$
 
-Rollout is performed either via **moment-matching** (fast, closed form for
-squared-exponential kernels) or **Monte Carlo** (unbiased, $S = 512$ paths).
+The hybrid model decomposes predictions as:
+
+$$
+\mathbf{c}_{t+1} = \underbrace{\mathbf{c}_t + \Delta t\,\mathbf{r}_{\text{mech}}}_{\text{mechanistic Euler}} + \underbrace{(\hat{\mathbf{c}}_{t+1} - \mathbf{c}_{\text{mech}})}_{\text{GP residual}}
+$$
+
+where $\hat{\mathbf{c}}_{t+1}$ is the GP posterior mean and $\mathbf{c}_{\text{mech}}$ is the
+mechanistic Euler prediction. This form ensures the mechanistic prior anchors
+extrapolation while the GP corrects in-distribution errors.
+
+Rollout is performed either via **moment-matching** (fast, propagates mean and
+variance analytically) or **Monte Carlo** (unbiased, default $S = 100$ paths).
 
 ## References
 

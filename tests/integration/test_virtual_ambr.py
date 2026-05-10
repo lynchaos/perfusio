@@ -12,18 +12,17 @@ from __future__ import annotations
 import asyncio
 
 import pytest
-import torch
 
 pytestmark = pytest.mark.slow
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_30day_virtual_ambr() -> None:
     """VCD should be within ±30% of target after 20 days."""
     from perfusio.connectors.ambr250_emulator import Ambr250Emulator
 
     vcd_target = 10.0  # 10 × 10⁶ cells/mL
-    tolerance = 0.30   # 30%
+    tolerance = 0.30  # 30%
 
     emulator = Ambr250Emulator(clone="CloneX", seed=0)
     # Run 28 days
@@ -49,6 +48,6 @@ def test_five_reactor_ensemble_independent() -> None:
     samples = [asyncio.run(r.read_sample(day=5)) for r in reactors]
     # All VCDs should differ
     vcds = [s.get("VCD", None) for s in samples]
-    assert len(set(round(v, 6) for v in vcds if v is not None)) > 1, (
-        "All five reactors returned identical VCD; seeds may not be independent."
-    )
+    assert (
+        len(set(round(v, 6) for v in vcds if v is not None)) > 1
+    ), "All five reactors returned identical VCD; seeds may not be independent."

@@ -13,9 +13,9 @@ Public API
 - :func:`~perfusio.mechanistic.integrators.integrate_run`
 """
 
+from perfusio.mechanistic.integrators import integrate_run
 from perfusio.mechanistic.kinetics import CHOKinetics
 from perfusio.mechanistic.models import CHOPerfusionModel
-from perfusio.mechanistic.integrators import integrate_run
 
 __all__ = [
     "CHOKinetics",

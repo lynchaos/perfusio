@@ -25,7 +25,7 @@ from typing import Literal
 import torch
 from pydantic import BaseModel, Field, model_validator
 
-from perfusio._typing import DEFAULT_DEVICE, DEFAULT_DTYPE
+from perfusio._typing import DEFAULT_DTYPE
 
 
 class SpeciesBounds(BaseModel):
@@ -56,7 +56,7 @@ class SpeciesBounds(BaseModel):
     description: str = Field(default="", description="Human-readable label.")
 
     @model_validator(mode="after")
-    def _lo_lt_hi(self) -> "SpeciesBounds":
+    def _lo_lt_hi(self) -> SpeciesBounds:
         if self.lo >= self.hi:
             msg = f"lo ({self.lo}) must be strictly less than hi ({self.hi})."
             raise ValueError(msg)
@@ -98,7 +98,7 @@ class ControlBounds(BaseModel):
     hard_upper: bool = Field(default=True)
 
     @model_validator(mode="after")
-    def _lo_lt_hi(self) -> "ControlBounds":
+    def _lo_lt_hi(self) -> ControlBounds:
         if self.lo >= self.hi:
             msg = f"lo ({self.lo}) must be strictly less than hi ({self.hi})."
             raise ValueError(msg)
@@ -249,9 +249,7 @@ class RunConfig(BaseModel):
     )
     n_mc_samples: int = Field(default=256, ge=16, description="MC paths for rollout.")
     n_restarts: int = Field(default=10, ge=1, description="Acqf optimisation restarts.")
-    raw_samples: int = Field(
-        default=512, ge=64, description="Sobol samples for acqf warm-start."
-    )
+    raw_samples: int = Field(default=512, ge=64, description="Sobol samples for acqf warm-start.")
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(default="INFO")
     allow_write: bool = Field(
         default=False,
@@ -319,13 +317,11 @@ class AlarmConfig(BaseModel):
     ammonium_critical: float = Field(default=12.0, ge=0.0)
     glucose_warning: float = Field(default=1.0, ge=0.0)
     glucose_critical: float = Field(default=0.3, ge=0.0)
-    notification_channel: Literal["log", "file", "email", "slack"] = Field(
-        default="log"
-    )
+    notification_channel: Literal["log", "file", "email", "slack"] = Field(default="log")
     alarm_file: Path | None = Field(default=None)
 
     @model_validator(mode="after")
-    def _critical_below_warning(self) -> "AlarmConfig":
+    def _critical_below_warning(self) -> AlarmConfig:
         if self.viability_critical > self.viability_warning:
             msg = "viability_critical must be ≤ viability_warning."
             raise ValueError(msg)

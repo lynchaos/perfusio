@@ -33,8 +33,8 @@ from torch import Tensor
 class CloneInfo:
     """Metadata for a single CHO cell line."""
 
-    clone_id: int          # integer index (0-based)
-    name: str              # e.g. "CloneX", "CloneY"
+    clone_id: int  # integer index (0-based)
+    name: str  # e.g. "CloneX", "CloneY"
     consumes_lactate: bool = True  # True = Warburg switch (clone X)
     description: str = ""
 
@@ -63,7 +63,7 @@ class CloneRegistry:
         self._by_id: dict[int, CloneInfo] = {c.clone_id: c for c in clones}
 
     @classmethod
-    def default(cls) -> "CloneRegistry":
+    def default(cls) -> CloneRegistry:
         """Return the default two-clone registry (Clone X and Clone Y).
 
         Clone X switches from lactate production to consumption at low glucose

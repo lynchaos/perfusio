@@ -5,7 +5,7 @@ Dear Drs. Gadiyar, [co-authors],
 I hope this message finds you well.
 
 I am writing to share an open-source Python library, **perfusio**
-(https://github.com/your-org/perfusio), which I developed as a
+(https://github.com/lynchaos/perfusio), which I developed as a
 peer-reviewable reference implementation of the methodology described in:
 
 > Gadiyar, C. J., et al. (2026). Self-Driving Development of Perfusion

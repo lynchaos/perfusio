@@ -21,6 +21,6 @@ from perfusio.hybrid.train import train_hybrid
 
 __all__ = [
     "HybridStateSpaceModel",
-    "train_hybrid",
     "forecast_run",
+    "train_hybrid",
 ]

@@ -12,7 +12,7 @@ to avoid circular imports and keep start-up cost low.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any, Protocol, TypeAlias, runtime_checkable
 
@@ -92,9 +92,7 @@ class BioreactorConnector(Protocol):
         """
         ...
 
-    async def write_setpoints(
-        self, reactor_id: str, setpoints: Mapping[str, float]
-    ) -> None:
+    async def write_setpoints(self, reactor_id: str, setpoints: Mapping[str, float]) -> None:
         """Write control setpoints to the reactor controller.
 
         Parameters
@@ -123,7 +121,7 @@ class BioreactorConnector(Protocol):
 class Fittable(Protocol):
     """Any object with a ``fit`` method."""
 
-    def fit(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    def fit(self, *args: Any, **kwargs: Any) -> None:
         """Fit the model in-place."""
         ...
 

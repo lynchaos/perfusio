@@ -48,17 +48,14 @@ class TestPerfusionKernel:
 
 class TestGPPosterior:
     def test_posterior_in_range(self, simple_xy: tuple) -> None:
-        from gpytorch.likelihoods import GaussianLikelihood
         import gpytorch
-
-        from perfusio.gp.exact_gp import MultiTaskRateGP
+        from gpytorch.likelihoods import GaussianLikelihood
 
         X, Y = simple_xy
         y_single = Y[:, 0]  # single output
         lh = GaussianLikelihood().double()
         from gpytorch.kernels import RBFKernel
         from gpytorch.means import ConstantMean
-        import gpytorch
 
         # Use a minimal ExactGP for test speed
         class _TinyGP(gpytorch.models.ExactGP):
@@ -68,9 +65,7 @@ class TestGPPosterior:
                 self.covar = RBFKernel()
 
             def forward(self, x: torch.Tensor) -> gpytorch.distributions.MultivariateNormal:
-                return gpytorch.distributions.MultivariateNormal(
-                    self.mean(x), self.covar(x)
-                )
+                return gpytorch.distributions.MultivariateNormal(self.mean(x), self.covar(x))
 
         gp = _TinyGP().double()
         gp.eval()
@@ -87,6 +82,7 @@ class TestGPPosterior:
 class TestJackknifeEnsemble:
     def test_std_nonneg(self) -> None:
         import gpytorch
+
         from perfusio.gp.ensemble import JackknifeEnsemble
 
         torch.manual_seed(1)

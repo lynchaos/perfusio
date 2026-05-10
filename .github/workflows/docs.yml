@@ -26,12 +26,12 @@ jobs:
         run: uv sync --extra docs --extra dev
 
       - name: Build Sphinx docs
-        run: uv run sphinx-build docs docs/_build -W --keep-going -n
+        run: uv run sphinx-build -b html docs/source docs/build/html --keep-going -n -W
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/_build/
+          path: docs/build/html/
 
   deploy-docs:
     if: github.ref == 'refs/heads/main'

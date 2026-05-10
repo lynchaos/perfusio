@@ -20,8 +20,6 @@ References
 from __future__ import annotations
 
 import asyncio
-import time
-from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
@@ -30,28 +28,27 @@ from perfusio.mechanistic.integrators import integrate_run
 from perfusio.mechanistic.kinetics import CHOKinetics
 from perfusio.simulator.noise import NoiseModel
 
-
 # Initial state for a CHO perfusion run at inoculation (day 0)
 _DEFAULT_Y0: dict[str, float] = {
-    "VCD":   1.0,     # 10⁶ cells/mL
-    "Via":   99.0,    # %
-    "Glc":   5.0,     # g/L
-    "Gln":   4.0,     # mmol/L
-    "Glu":   0.5,     # mmol/L
-    "Lac":   2.0,     # mmol/L
-    "Amm":   0.5,     # mmol/L
-    "Pyr":   0.0,     # mmol/L
-    "Titer": 0.0,     # mg/L
+    "VCD": 1.0,  # 10⁶ cells/mL
+    "Via": 99.0,  # %
+    "Glc": 5.0,  # g/L
+    "Gln": 4.0,  # mmol/L
+    "Glu": 0.5,  # mmol/L
+    "Lac": 2.0,  # mmol/L
+    "Amm": 0.5,  # mmol/L
+    "Pyr": 0.0,  # mmol/L
+    "Titer": 0.0,  # mg/L
 }
 
 # Default control setpoints for a standard perfusion run
 _DEFAULT_CONTROLS: dict[str, float] = {
-    "perfusion_rate":    1.0,    # vvd
-    "bleed_rate":        0.15,   # vvd
-    "glucose_setpoint":  5.0,    # g/L (target for glucose feed control)
-    "temperature":       37.0,   # °C
-    "agitation":         250.0,  # rpm
-    "pyruvate_feed":     0.0,    # mmol/L
+    "perfusion_rate": 1.0,  # vvd
+    "bleed_rate": 0.15,  # vvd
+    "glucose_setpoint": 5.0,  # g/L (target for glucose feed control)
+    "temperature": 37.0,  # °C
+    "agitation": 250.0,  # rpm
+    "pyruvate_feed": 0.0,  # mmol/L
 }
 
 
@@ -104,9 +101,7 @@ class CHOSimulator:
             msg = f"clone must be 'CloneX' or 'CloneY', got '{clone}'."
             raise ValueError(msg)
         self.clone = clone
-        self._kinetics = CHOKinetics(
-            consumes_lactate=(clone == "CloneX")
-        )
+        self._kinetics = CHOKinetics(consumes_lactate=(clone == "CloneX"))
         self._y0 = {**_DEFAULT_Y0, **(y0 or {})}
         self._controls = {**_DEFAULT_CONTROLS, **(controls or {})}
         self.volume_L = volume_L
@@ -231,12 +226,14 @@ class CHOSimulator:
                 clean = {k: float(traj[day, j]) for j, k in enumerate(self.STATE_SPECIES)}
                 noisy_samples.append(nm.apply(clean, day=day))
 
-            runs.append({
-                "run_id": run_id,
-                "controls": ctrl,
-                "trajectory": traj,
-                "noisy_samples": noisy_samples,
-            })
+            runs.append(
+                {
+                    "run_id": run_id,
+                    "controls": ctrl,
+                    "trajectory": traj,
+                    "noisy_samples": noisy_samples,
+                }
+            )
 
         return runs
 
@@ -245,7 +242,7 @@ class CHOSimulator:
     async def _run_to_day(self, day: int) -> None:
         """Integrate ODE up to *day* and cache the trajectory."""
         # Simulate asynchronously to avoid blocking
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         traj = await loop.run_in_executor(
             None,
             lambda: self.simulate_run(n_days=max(day, 30)),

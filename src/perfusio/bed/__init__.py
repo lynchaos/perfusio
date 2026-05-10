@@ -27,11 +27,11 @@ from perfusio.bed.policies import BEDPolicy
 from perfusio.bed.search import optimise_acquisition
 
 __all__ = [
-    "build_acquisition",
+    "BEDPolicy",
     "MultiObjectiveOFV",
     "TargetTrackingOFV",
+    "build_acquisition",
     "compute_pareto_front",
     "hypervolume",
-    "BEDPolicy",
     "optimise_acquisition",
 ]

@@ -13,7 +13,7 @@ Thank you for your interest in contributing!
 ## Development setup
 
 ```bash
-git clone https://github.com/your-org/perfusio.git
+git clone https://github.com/lynchaos/perfusio.git
 cd perfusio
 pip install -e ".[dev]"
 pre-commit install

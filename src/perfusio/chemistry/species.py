@@ -111,7 +111,7 @@ class SpeciesRegistry:
     '10⁶ cells mL⁻¹'
     """
 
-    DEFAULT: ClassVar["SpeciesRegistry"]
+    DEFAULT: ClassVar[SpeciesRegistry]
 
     def __init__(self, species: list[Species]) -> None:
         self._by_name: dict[str, Species] = {s.short_name: s for s in species}
@@ -158,7 +158,7 @@ class SpeciesRegistry:
         """Species derived from measured values."""
         return [s for s in self._by_name.values() if not s.is_measured]
 
-    def subset(self, names: list[str]) -> "SpeciesRegistry":
+    def subset(self, names: list[str]) -> SpeciesRegistry:
         """Return a sub-registry containing only the listed species.
 
         Parameters
@@ -169,6 +169,7 @@ class SpeciesRegistry:
         Returns
         -------
         SpeciesRegistry
+
         Raises
         ------
         KeyError
@@ -187,6 +188,7 @@ class SpeciesRegistry:
         Returns
         -------
         int
+
         Raises
         ------
         KeyError

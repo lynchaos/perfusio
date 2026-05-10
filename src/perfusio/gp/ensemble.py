@@ -18,7 +18,7 @@ References
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import gpytorch
 import torch
@@ -68,10 +68,10 @@ class JackknifeEnsemble:
         self,
         train_x: Tensor,
         train_y: Tensor,
-        model_factory: "object",
+        model_factory: object,
         n_iter: int = 200,
         lr: float = 0.05,
-    ) -> "JackknifeEnsemble":
+    ) -> JackknifeEnsemble:
         """Train all K ensemble members.
 
         Parameters

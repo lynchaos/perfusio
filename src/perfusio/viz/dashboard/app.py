@@ -22,18 +22,16 @@ import threading
 from collections import deque
 from typing import Any
 
-import numpy as np
-
 import dash
-from dash import dcc, html, Output, Input, State
 import plotly.graph_objects as go
+from dash import Input, Output, dcc, html
 
 app = dash.Dash(
     __name__,
     title="perfusio — live bioreactor dashboard",
     suppress_callback_exceptions=True,
 )
-app.server.secret_key = "perfusio-dashboard"  # noqa: S105  # dev only
+app.server.secret_key = "perfusio-dashboard"  # dev only
 
 # ── State store (thread-safe deques) ──────────────────────────────────────────
 
@@ -142,7 +140,8 @@ def _update(_n: int) -> tuple[go.Figure, go.Figure, go.Figure, str]:
         all_q = tq90 + tq10[::-1]
         f_titer.add_trace(
             go.Scatter(
-                x=all_days, y=all_q,
+                x=all_days,
+                y=all_q,
                 fill="toself",
                 fillcolor="rgba(78,154,241,0.15)",
                 line={"color": "rgba(0,0,0,0)"},

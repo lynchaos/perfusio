@@ -21,7 +21,7 @@ References
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import torch
@@ -35,9 +35,9 @@ if TYPE_CHECKING:
 class TargetSpec:
     """Specification for a single tracked species target."""
 
-    species_index: int    # column index in the state tensor
-    target: float         # target value
-    weight: float = 1.0   # relative weight in the OFV sum
+    species_index: int  # column index in the state tensor
+    target: float  # target value
+    weight: float = 1.0  # relative weight in the OFV sum
 
 
 class TargetTrackingOFV:
@@ -70,7 +70,7 @@ class TargetTrackingOFV:
     def __init__(
         self,
         targets: list[TargetSpec],
-        hybrid: "HybridStateSpaceModel | None" = None,
+        hybrid: HybridStateSpaceModel | None = None,
         horizon: int = 3,
         n_samples: int = 100,
         seed: int = 42,
@@ -99,9 +99,15 @@ class TargetTrackingOFV:
         """
         from perfusio.hybrid.forecast import forecast_run
 
+        if self.hybrid is None:
+            msg = "TargetTrackingOFV.evaluate() requires a hybrid model; pass hybrid= at construction."
+            raise RuntimeError(msg)
+
         u_seq = u.unsqueeze(0).expand(self.horizon, -1)
         preds = forecast_run(
-            self.hybrid, c0, u_seq,
+            self.hybrid,
+            c0,
+            u_seq,
             horizon=self.horizon,
             n_samples=self.n_samples,
             seed=self.seed,
@@ -134,7 +140,7 @@ class TargetTrackingOFV:
         """
         total = torch.zeros(Y.shape[0], dtype=Y.dtype, device=Y.device)
         for spec in self.targets:
-            vals = Y[:, :, spec.species_index]           # (B, horizon)
+            vals = Y[:, :, spec.species_index]  # (B, horizon)
             sse = ((vals - spec.target) ** 2).mean(dim=-1)  # (B,)
             total = total - spec.weight * sse
         return total
@@ -181,7 +187,7 @@ class MultiObjectiveOFV:
 
     def __init__(
         self,
-        hybrid: "HybridStateSpaceModel",
+        hybrid: HybridStateSpaceModel,
         objectives: list[tuple[int, float, float]],
         horizon: int = 3,
         n_samples: int = 100,
@@ -213,7 +219,9 @@ class MultiObjectiveOFV:
 
         u_seq = u.unsqueeze(0).expand(self.horizon, -1)
         preds = forecast_run(
-            self.hybrid, c0, u_seq,
+            self.hybrid,
+            c0,
+            u_seq,
             horizon=self.horizon,
             n_samples=self.n_samples,
             seed=self.seed,

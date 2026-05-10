@@ -22,13 +22,12 @@ References
 
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
 import botorch.acquisition as ba
 import botorch.acquisition.multi_objective as bamo
 import torch
 from botorch.acquisition.multi_objective.parego import qLogNParEGO
-from botorch.models import ModelListGP, SingleTaskGP
 from botorch.models.model import Model
 from torch import Tensor
 
@@ -45,8 +44,8 @@ def build_acquisition(
     best_f: float | None = None,
     beta: float = 0.2,
     ref_point: list[float] | None = None,
-    partitioning: "object | None" = None,
-    sampler: "object | None" = None,
+    partitioning: object | None = None,
+    sampler: object | None = None,
     constraints: list[Callable[[Tensor], Tensor]] | None = None,
     **kwargs: object,
 ) -> ba.AcquisitionFunction:
@@ -89,14 +88,12 @@ def build_acquisition(
         If *name* is not a recognised acquisition type.
     """
     if name not in ALL_ACQUISITIONS:
-        msg = (
-            f"Unknown acquisition '{name}'. "
-            f"Choose one of: {sorted(ALL_ACQUISITIONS)}"
-        )
+        msg = f"Unknown acquisition '{name}'. " f"Choose one of: {sorted(ALL_ACQUISITIONS)}"
         raise ValueError(msg)
 
     if sampler is None and name in (_SINGLE_OBJ_MC | _MULTI_OBJ_MC):
         from botorch.sampling.normal import SobolQMCNormalSampler
+
         sampler = SobolQMCNormalSampler(sample_shape=torch.Size([512]))
 
     # ── Analytic single-objective ──────────────────────────────────────────
@@ -129,12 +126,13 @@ def build_acquisition(
     if name == "qLogEI":
         _require(best_f, "qLogEI", "best_f")
         from botorch.acquisition.logei import qLogExpectedImprovement
-        return qLogExpectedImprovement(
-            model=model, best_f=best_f, sampler=sampler, **kwargs
-        )
+
+        return qLogExpectedImprovement(model=model, best_f=best_f, sampler=sampler, **kwargs)
 
     if name == "qUCB":
-        return ba.monte_carlo.qUpperConfidenceBound(model=model, beta=beta, sampler=sampler, **kwargs)
+        return ba.monte_carlo.qUpperConfidenceBound(
+            model=model, beta=beta, sampler=sampler, **kwargs
+        )
 
     # ── Multi-objective MC ─────────────────────────────────────────────────
     if name == "qEHVI":
@@ -154,7 +152,9 @@ def build_acquisition(
         # X_baseline defaults to the model's training inputs when not supplied
         _x_bl = kwargs.pop(
             "X_baseline",
-            model.train_inputs[0] if hasattr(model, "train_inputs") and model.train_inputs else None,  # type: ignore[attr-defined]
+            model.train_inputs[0]
+            if hasattr(model, "train_inputs") and model.train_inputs
+            else None,  # type: ignore[attr-defined]
         )
         if _x_bl is None:
             msg = "Acquisition 'qNEHVI' requires 'X_baseline' or a fitted model with train_inputs."
@@ -174,10 +174,14 @@ def build_acquisition(
     if name == "qNParEGO":
         _x_bl = kwargs.pop(
             "X_baseline",
-            model.train_inputs[0] if hasattr(model, "train_inputs") and model.train_inputs else None,  # type: ignore[attr-defined]
+            model.train_inputs[0]
+            if hasattr(model, "train_inputs") and model.train_inputs
+            else None,  # type: ignore[attr-defined]
         )
         if _x_bl is None:
-            msg = "Acquisition 'qNParEGO' requires 'X_baseline' or a fitted model with train_inputs."
+            msg = (
+                "Acquisition 'qNParEGO' requires 'X_baseline' or a fitted model with train_inputs."
+            )
             raise ValueError(msg)
         # Strip leading batch dim produced by batched multi-output GPs
         if isinstance(_x_bl, Tensor) and _x_bl.dim() == 3:
@@ -195,7 +199,7 @@ def build_acquisition(
     raise AssertionError(msg)
 
 
-def _require(value: "object | None", acq_name: str, param_name: str) -> None:
+def _require(value: object | None, acq_name: str, param_name: str) -> None:
     if value is None:
         msg = f"Acquisition '{acq_name}' requires '{param_name}' to be provided."
         raise ValueError(msg)

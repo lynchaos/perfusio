@@ -91,8 +91,6 @@ class AlarmNotifier:
         list[AlarmEvent]
             All violations predicted within the lead window.
         """
-        import torch
-
         mean_traj = forecast["mean"]  # (horizon, n_species)
         events: list[AlarmEvent] = []
 
@@ -120,8 +118,12 @@ class AlarmNotifier:
                 logger.warning(
                     "ALARM [Day %d, +%d days lead]: %s predicted %s threshold "
                     "(value=%.3f, threshold=%.3f)",
-                    event.day, event.lead_days, event.species, event.direction,
-                    event.predicted_value, event.threshold,
+                    event.day,
+                    event.lead_days,
+                    event.species,
+                    event.direction,
+                    event.predicted_value,
+                    event.threshold,
                 )
             elif channel == "email":
                 self._send_email(event)
@@ -165,7 +167,7 @@ class AlarmNotifier:
                 if password:
                     s.login(sender, password)
                 s.send_message(msg)
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.exception("Failed to send alarm email.")
 
     def _send_slack(self, event: AlarmEvent) -> None:
@@ -178,24 +180,26 @@ class AlarmNotifier:
             logger.warning("Slack alarm suppressed: SLACK_WEBHOOK_URL not set.")
             return
 
-        payload = json.dumps({
-            "text": (
-                f":warning: *perfusio ALARM* — `{event.species}` predicted "
-                f"{event.direction} threshold on day {event.day} "
-                f"(lead: {event.lead_days} d, value: {event.predicted_value:.3f}, "
-                f"threshold: {event.threshold:.3f})"
-            )
-        }).encode()
+        payload = json.dumps(
+            {
+                "text": (
+                    f":warning: *perfusio ALARM* — `{event.species}` predicted "
+                    f"{event.direction} threshold on day {event.day} "
+                    f"(lead: {event.lead_days} d, value: {event.predicted_value:.3f}, "
+                    f"threshold: {event.threshold:.3f})"
+                )
+            }
+        ).encode()
 
-        req = urllib.request.Request(  # noqa: S310 — webhook URL set by operator
+        req = urllib.request.Request(  # — webhook URL set by operator
             url,
             data=payload,
             headers={"Content-Type": "application/json"},
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 if resp.status != 200:
                     logger.warning("Slack alarm: unexpected status %d", resp.status)
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.exception("Failed to post Slack alarm.")

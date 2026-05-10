@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-import torch
 import pytest
+import torch
 
 from perfusio.metrics import (
-    rrmse_horizon,
-    pi_coverage,
-    sharpness,
     crps,
+    epsilon_indicator,
     hypervolume_indicator,
     igd_plus,
-    epsilon_indicator,
+    pi_coverage,
+    rrmse_horizon,
+    sharpness,
 )
 
 

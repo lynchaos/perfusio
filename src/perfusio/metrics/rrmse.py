@@ -29,7 +29,6 @@ References
 
 from __future__ import annotations
 
-import torch
 from torch import Tensor
 
 
@@ -93,8 +92,8 @@ def rrmse_horizon(
 
     # MSE over runs for each (time, species)
     squared_err = (pred - true) ** 2  # (n_runs, T, n_species)
-    mse = squared_err.mean(dim=0)     # (T, n_species)
-    rmse = mse.sqrt()                 # (T, n_species)
+    mse = squared_err.mean(dim=0)  # (T, n_species)
+    rmse = mse.sqrt()  # (T, n_species)
 
     # Normalise: broadcast sigma over time axis
     rrmse = rmse / sigma.unsqueeze(0)  # (T, n_species)

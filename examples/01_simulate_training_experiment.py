@@ -16,11 +16,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import numpy as np
-
 from perfusio.simulator.cho_perfusion import CHOSimulator
-from perfusio.viz.theme import apply_theme
 from perfusio.viz.static import fig4_training_trajectories
+from perfusio.viz.theme import apply_theme
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 

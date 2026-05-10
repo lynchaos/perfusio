@@ -18,8 +18,8 @@ from perfusio.simulator.noise import NoiseModel
 
 __all__ = [
     "CHOSimulator",
+    "NoiseModel",
     "box_behnken",
     "central_composite",
     "latin_hypercube",
-    "NoiseModel",
 ]

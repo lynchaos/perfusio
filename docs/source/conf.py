@@ -7,8 +7,8 @@ from __future__ import annotations
 import perfusio
 
 project = "perfusio"
-author = "perfusio contributors"
-copyright = "2024, perfusio contributors"
+author = "Kemal Yaylali"
+copyright = "2026, Kemal Yaylali"
 version = perfusio.__version__
 release = version
 
@@ -20,7 +20,6 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
-    "autodoc2",
     "myst_parser",
     "nbsphinx",
     "sphinx_copybutton",
@@ -33,18 +32,8 @@ napoleon_numpy_docstring = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "torch":  ("https://pytorch.org/docs/stable", None),
-    "botorch": ("https://botorch.org/api", None),
+    "torch": ("https://pytorch.org/docs/stable", None),
 }
-
-# ── Autodoc2 ──────────────────────────────────────────────────────────────────
-autodoc2_packages = [
-    {
-        "path": "../../src/perfusio",
-        "module": "perfusio",
-    }
-]
-autodoc2_render_plugin = "myst"
 
 # ── MyST Parser ───────────────────────────────────────────────────────────────
 myst_enable_extensions = ["amsmath", "dollarmath", "colon_fence"]

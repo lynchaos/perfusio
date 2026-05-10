@@ -15,7 +15,7 @@ pip install perfusio
 python examples/reproduce_paper_figures.py
 ```
 
-🔗 https://github.com/your-org/perfusio
+🔗 https://github.com/lynchaos/perfusio
 
 Fully tested (>92% coverage), CI on Linux/macOS/Windows × Python 3.11–3.13,
 Apache-2.0 licence. Contributions welcome!

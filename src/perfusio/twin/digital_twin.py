@@ -37,7 +37,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import torch
 
@@ -46,10 +46,10 @@ from perfusio.twin.notifications import AlarmNotifier
 from perfusio.twin.scheduler import DailyScheduler
 
 if TYPE_CHECKING:
+    from perfusio._typing import BioreactorConnector
     from perfusio.bed.policies import BEDPolicy
     from perfusio.config import DesignSpace
     from perfusio.hybrid.model import HybridStateSpaceModel
-    from perfusio._typing import BioreactorConnector
 
 logger = logging.getLogger(__name__)
 
@@ -83,10 +83,10 @@ class DigitalTwin:
 
     def __init__(
         self,
-        connector: "BioreactorConnector",
-        hybrid: "HybridStateSpaceModel",
-        design_space: "DesignSpace",
-        bed_policy: "BEDPolicy",
+        connector: BioreactorConnector,
+        hybrid: HybridStateSpaceModel,
+        design_space: DesignSpace,
+        bed_policy: BEDPolicy,
         notifier: AlarmNotifier | None = None,
         log_dir: Path | str = Path("./perfusio_audit"),
         run_id: str = "default",
@@ -122,13 +122,11 @@ class DigitalTwin:
         dict
             Summary with keys: ``"sample"``, ``"forecast"``, ``"decision"``.
         """
-        return asyncio.get_event_loop().run_until_complete(self._async_step(day))
+        return asyncio.run(self._async_step(day))
 
     def run_sync(self, n_days: int, interval_seconds: float = 0.0) -> None:
         """Run the full twin synchronously (blocking)."""
-        asyncio.get_event_loop().run_until_complete(
-            self.run(n_days=n_days, interval_seconds=interval_seconds)
-        )
+        asyncio.run(self.run(n_days=n_days, interval_seconds=interval_seconds))
 
     # ── Async public API ───────────────────────────────────────────────────
 
@@ -176,6 +174,7 @@ class DigitalTwin:
 
         # 4. Forecast
         from perfusio.hybrid.forecast import forecast_run
+
         u_default = torch.zeros(len(self.design_space.control_names), dtype=torch.float64)
         forecast = forecast_run(self.hybrid, c_current, u_default.unsqueeze(0).expand(3, -1))
         self._audit.log("FORECAST", payload={"mean": forecast["mean"].tolist()}, day=day)
@@ -192,7 +191,6 @@ class DigitalTwin:
 
         # 6. BED decision
         u_current = torch.zeros(len(self.design_space.control_names), dtype=torch.float64)
-        from botorch.models import SingleTaskGP
         # Build a minimal botorch surrogate from current trajectory history
         surrogate = self._build_surrogate()
         decision = self.bed_policy.decide(
@@ -210,35 +208,72 @@ class DigitalTwin:
         else:
             logger.info("allow_write=False: setpoints not written on day %d.", day)
 
+        # 8. Buffer observation (species + controls applied this day) for online retraining
+        ctrl_tensor = torch.tensor(
+            [
+                float(decision.recommended_controls.get(k, 0.0))
+                for k in self.design_space.control_names
+            ],
+            dtype=torch.float64,
+        )
+        self._obs_buffer.append({"sample": sample, "day": day, "controls_tensor": ctrl_tensor})
+
         return {"sample": sample, "forecast": forecast, "decision": decision}
 
     def _retrain(self) -> None:
         """Online-retrain the GP from buffered observations."""
         if len(self._obs_buffer) < 2:
             return
-        from perfusio.hybrid.train import retrain_online
-        import numpy as np
 
-        # Build (N, n_species) tensors from buffer
-        Y = torch.tensor(
-            [[float(ob.get(s, 0.0) or 0.0) for s in self.species_names]
-             for ob in self._obs_buffer],
-            dtype=torch.float64,
-        )
-        N = Y.shape[0]
-        X = torch.arange(N, dtype=torch.float64).unsqueeze(-1)
+        from perfusio.hybrid.train import retrain_online
+
+        n_species = len(self.species_names)
+        n_controls = len(self.design_space.control_names)
+
+        # Build one-step base rows: [species(9), controls(6), day(1)] → (N, 16)
+        base_rows = []
+        for ob in self._obs_buffer:
+            sp = torch.tensor(
+                [float(ob["sample"].get(s, 0.0) or 0.0) for s in self.species_names],
+                dtype=torch.float64,
+            )
+            ctrl = ob.get("controls_tensor", torch.zeros(n_controls, dtype=torch.float64))
+            day_t = torch.tensor([float(ob["day"])], dtype=torch.float64)
+            base_rows.append(torch.cat([sp, ctrl, day_t]))  # (16,)
+
+        # Input rows are t=0..N-2; targets are species at t=1..N-1
+        base_x = torch.stack(base_rows[:-1])   # (N-1, 16)
+        new_y_base = torch.stack([
+            torch.tensor(
+                [float(ob["sample"].get(s, 0.0) or 0.0) for s in self.species_names],
+                dtype=torch.float64,
+            )
+            for ob in self._obs_buffer[1:]
+        ])  # (N-1, n_species)
+
+        N = base_x.shape[0]
+
+        # Build indexed multi-task format: (N*n_species, 17) and (N*n_species,)
+        xs_flat, ys_flat = [], []
+        for task_id in range(n_species):
+            task_col = torch.full((N, 1), float(task_id), dtype=torch.float64)
+            xs_flat.append(torch.cat([base_x, task_col], dim=1))  # (N, 17)
+            ys_flat.append(new_y_base[:, task_id])                 # (N,)
+
+        new_x = torch.cat(xs_flat, dim=0)  # (N * n_species, 17)
+        new_y = torch.cat(ys_flat, dim=0)  # (N * n_species,)
 
         retrain_online(
-            new_x=X,
-            new_y=Y,
-            model=self.hybrid.gp_model,
+            new_x=new_x,
+            new_y=new_y,
+            model=self.hybrid.gp_model.model,       # MultiTaskRateGP (ExactGP)
             likelihood=self.hybrid.gp_model.likelihood,
         )
 
-    def _build_surrogate(self) -> "Any":
+    def _build_surrogate(self) -> Any:
         """Build a minimal SingleTaskGP surrogate for the BED policy."""
-        from botorch.models import SingleTaskGP
         from botorch.fit import fit_gpytorch_mll
+        from botorch.models import SingleTaskGP
         from gpytorch.mlls import ExactMarginalLogLikelihood
 
         if len(self._obs_buffer) < 2:
@@ -247,8 +282,10 @@ class DigitalTwin:
             train_y = torch.zeros(2, 1, dtype=torch.float64)
         else:
             Y = torch.tensor(
-                [[float(ob.get(s, 0.0) or 0.0) for s in self.species_names]
-                 for ob in self._obs_buffer],
+                [
+                    [float(ob.get(s, 0.0) or 0.0) for s in self.species_names]
+                    for ob in self._obs_buffer
+                ],
                 dtype=torch.float64,
             )
             train_x = torch.arange(len(Y), dtype=torch.float64).unsqueeze(-1)
@@ -258,6 +295,6 @@ class DigitalTwin:
         mll = ExactMarginalLogLikelihood(surrogate.likelihood, surrogate)
         try:
             fit_gpytorch_mll(mll)
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass  # use prior if fitting fails on small data
         return surrogate

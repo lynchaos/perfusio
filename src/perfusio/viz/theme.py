@@ -16,7 +16,6 @@ References
 from __future__ import annotations
 
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 
 # ── OKLCH palette converted to sRGB hex ───────────────────────────────────────
 # 8 sequential hues at L≈0.70, C≈0.17, spaced 45° apart from 250°

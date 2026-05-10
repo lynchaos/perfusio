@@ -22,8 +22,9 @@ from typing import Any
 import numpy as np
 
 
-def _require_mpl() -> "Any":
+def _require_mpl() -> Any:
     import matplotlib.pyplot as plt
+
     return plt
 
 
@@ -35,7 +36,7 @@ def fig4_training_trajectories(
     species: str = "VCD",
     clone_labels: list[str] | None = None,
     alt_text: bool = False,
-) -> "Any":
+) -> Any:
     """Reproduce Gadiyar Fig. 4 — training experiment trajectories.
 
     Parameters
@@ -54,31 +55,47 @@ def fig4_training_trajectories(
     -------
     matplotlib.figure.Figure
     """
-    from perfusio.viz.theme import apply_theme, PALETTE, PALETTE_LIGHT
+    from perfusio.viz.theme import PALETTE, apply_theme
+
     apply_theme()
     plt = _require_mpl()
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     species_idx = {
-        "VCD": 0, "Via": 1, "Glc": 2, "Gln": 3, "Glu": 4,
-        "Lac": 5, "Amm": 6, "Pyr": 7, "Titer": 8,
+        "VCD": 0,
+        "Via": 1,
+        "Glc": 2,
+        "Gln": 3,
+        "Glu": 4,
+        "Lac": 5,
+        "Amm": 6,
+        "Pyr": 7,
+        "Titer": 8,
     }
     k = species_idx.get(species, 0)
 
     for ax_idx, ax in enumerate(axes):
-        subset = [r for r in runs if ax_idx == 0]  # all on left for demo
-        for i, run in enumerate(runs):
+        # Split runs by clone label: left panel = CloneX (or first half), right = CloneY
+        if clone_labels is not None:
+            subset = [r for r, lbl in zip(runs, clone_labels) if (ax_idx == 0) == ("X" in lbl or "x" in lbl)]
+        else:
+            # No labels provided: split evenly by index
+            mid = len(runs) // 2
+            subset = runs[:mid] if ax_idx == 0 else runs[mid:]
+        for i, run in enumerate(subset):
             traj = run["trajectory"]  # (n_days+1, n_species)
             days = np.arange(traj.shape[0])
             ax.plot(
-                days, traj[:, k],
+                days,
+                traj[:, k],
                 color=PALETTE[i % len(PALETTE)],
-                lw=1.2, alpha=0.8,
+                lw=1.2,
+                alpha=0.8,
                 label=f"Run {run['run_id']}" if i < 5 else None,
             )
         ax.set_xlabel("Culture day")
         ax.set_ylabel(species)
-        ax.set_title(f"Clone X runs" if ax_idx == 0 else "Clone Y runs")
+        ax.set_title("Clone X runs" if ax_idx == 0 else "Clone Y runs")
     axes[0].legend(ncol=2, fontsize=7)
 
     fig.suptitle(
@@ -101,14 +118,14 @@ def fig4_training_trajectories(
 
 
 def fig6_model_predictions(
-    true_traj: "Any",
-    pred_mean: "Any",
-    pred_q10: "Any",
-    pred_q90: "Any",
+    true_traj: Any,
+    pred_mean: Any,
+    pred_q10: Any,
+    pred_q90: Any,
     species_names: list[str],
     horizon: int = 3,
     alt_text: bool = False,
-) -> "Any":
+) -> Any:
     """Reproduce Gadiyar Fig. 6 — 3-step hybrid model predictions.
 
     Parameters
@@ -128,8 +145,8 @@ def fig6_model_predictions(
     -------
     matplotlib.figure.Figure
     """
-    import torch
-    from perfusio.viz.theme import apply_theme, PALETTE, PALETTE_LIGHT
+    from perfusio.viz.theme import PALETTE, PALETTE_LIGHT, apply_theme
+
     apply_theme()
     plt = _require_mpl()
 
@@ -155,7 +172,9 @@ def fig6_model_predictions(
             days,
             _np(pred_q10)[:, i],
             _np(pred_q90)[:, i],
-            color=PALETTE_LIGHT[1], alpha=0.5, label="80% PI",
+            color=PALETTE_LIGHT[1],
+            alpha=0.5,
+            label="80% PI",
         )
         ax.set_title(name)
         ax.set_xlabel("Day")
@@ -183,12 +202,12 @@ def fig6_model_predictions(
 
 
 def fig7_pareto_front(
-    pareto_titer: "Any",
-    pareto_vcv: "Any",
-    feasible_titer: "Any" | None = None,
-    feasible_vcv: "Any" | None = None,
+    pareto_titer: Any,
+    pareto_vcv: Any,
+    feasible_titer: Any | None = None,
+    feasible_vcv: Any | None = None,
     alt_text: bool = False,
-) -> "Any":
+) -> Any:
     """Reproduce Gadiyar Fig. 7 — Pareto front: titer vs. VCV.
 
     Parameters
@@ -206,7 +225,8 @@ def fig7_pareto_front(
     -------
     matplotlib.figure.Figure
     """
-    from perfusio.viz.theme import apply_theme, PALETTE, PALETTE_LIGHT
+    from perfusio.viz.theme import PALETTE, PALETTE_LIGHT, apply_theme
+
     apply_theme()
     plt = _require_mpl()
 
@@ -214,15 +234,25 @@ def fig7_pareto_front(
 
     if feasible_titer is not None and feasible_vcv is not None:
         ax.scatter(
-            np.asarray(feasible_titer), np.asarray(feasible_vcv),
-            color=PALETTE_LIGHT[0], s=20, alpha=0.5, label="Feasible", zorder=2,
+            np.asarray(feasible_titer),
+            np.asarray(feasible_vcv),
+            color=PALETTE_LIGHT[0],
+            s=20,
+            alpha=0.5,
+            label="Feasible",
+            zorder=2,
         )
 
     order = np.argsort(np.asarray(pareto_titer))
     ax.plot(
         np.asarray(pareto_titer)[order],
         np.asarray(pareto_vcv)[order],
-        "o-", color=PALETTE[0], lw=2, ms=7, label="Pareto front", zorder=3,
+        "o-",
+        color=PALETTE[0],
+        lw=2,
+        ms=7,
+        label="Pareto front",
+        zorder=3,
     )
 
     ax.set_xlabel("Titer (mg/L)")
@@ -245,15 +275,15 @@ def fig7_pareto_front(
 
 
 def fig8_closed_loop_performance(
-    days: "Any",
-    vcd: "Any",
+    days: Any,
+    vcd: Any,
     vcd_target: float,
-    glc: "Any",
+    glc: Any,
     glc_target: float,
-    titer: "Any",
+    titer: Any,
     titer_target: float,
     alt_text: bool = False,
-) -> "Any":
+) -> Any:
     """Reproduce Gadiyar Fig. 8 — closed-loop control performance.
 
     Parameters
@@ -271,7 +301,8 @@ def fig8_closed_loop_performance(
     -------
     matplotlib.figure.Figure
     """
-    from perfusio.viz.theme import apply_theme, PALETTE
+    from perfusio.viz.theme import PALETTE, apply_theme
+
     apply_theme()
     plt = _require_mpl()
 
@@ -282,7 +313,7 @@ def fig8_closed_loop_performance(
         (titer, titer_target, "Titer (mg/L)", PALETTE[2]),
     ]
 
-    for ax, (traj, target, ylabel, color) in zip(axes, specs):
+    for ax, (traj, target, ylabel, color) in zip(axes, specs, strict=False):
         ax.plot(np.asarray(days), np.asarray(traj), "o-", color=color, lw=1.8, ms=5)
         ax.axhline(target, ls="--", lw=1.2, color=color, alpha=0.6, label=f"Target {target}")
         ax.set_ylabel(ylabel)

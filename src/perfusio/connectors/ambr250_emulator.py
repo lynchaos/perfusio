@@ -13,7 +13,6 @@ changes when switching from simulation to real hardware.
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
@@ -66,7 +65,9 @@ class Ambr250Emulator(BioreactorConnectorBase):
         )
         logger.info(
             "Ambr250Emulator: initialised (%s, %.3f L, accel=%.1f×).",
-            clone, volume_L, acceleration,
+            clone,
+            volume_L,
+            acceleration,
         )
 
     # ── BioreactorConnectorBase ────────────────────────────────────────────
@@ -85,7 +86,7 @@ class Ambr250Emulator(BioreactorConnectorBase):
 
     # ── Convenience helpers ────────────────────────────────────────────────
 
-    def simulate_run(self, n_days: int = 28) -> "Any":
+    def simulate_run(self, n_days: int = 28) -> Any:
         """Run a clean (noiseless) N-day simulation and return trajectory."""
         return self._sim.simulate_run(n_days=n_days)
 
@@ -94,7 +95,7 @@ class Ambr250Emulator(BioreactorConnectorBase):
         cls,
         clones: list[str] | None = None,
         seed_start: int = 0,
-    ) -> list["Ambr250Emulator"]:
+    ) -> list[Ambr250Emulator]:
         """Instantiate 5 virtual reactors (Gadiyar Fig. 5 set-up).
 
         Parameters

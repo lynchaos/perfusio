@@ -10,20 +10,20 @@ Run::
 
 from __future__ import annotations
 
+import gpytorch
 import torch
-from botorch.models import SingleTaskGP
 from botorch.fit import fit_gpytorch_mll
+from botorch.models import SingleTaskGP
 from botorch.utils.multi_objective.box_decompositions.non_dominated import (
     FastNondominatedPartitioning,
 )
-import gpytorch
 
-from perfusio.config import DEFAULT_AMBR250_DESIGN_SPACE
 from perfusio.bed.acquisitions import build_acquisition
-from perfusio.bed.search import optimise_acquisition
 from perfusio.bed.pareto import compute_pareto_front, hypervolume
-from perfusio.viz.theme import apply_theme
+from perfusio.bed.search import optimise_acquisition
+from perfusio.config import DEFAULT_AMBR250_DESIGN_SPACE
 from perfusio.viz.static import fig7_pareto_front
+from perfusio.viz.theme import apply_theme
 
 apply_theme()
 
@@ -37,7 +37,7 @@ train_X = BOUNDS[0] + torch.rand(n_ref, dim) * (BOUNDS[1] - BOUNDS[0])
 # Two simulated objectives: Titer (↑) and VCD viability fraction (↑)
 train_Y = torch.rand(n_ref, 2, dtype=torch.float64)
 train_Y[:, 0] = train_Y[:, 0] * 600  # Titer [mg/L]
-train_Y[:, 1] = train_Y[:, 1] * 0.95 # VCV fraction
+train_Y[:, 1] = train_Y[:, 1] * 0.95  # VCV fraction
 
 gp = SingleTaskGP(train_X, train_Y)
 mll = gpytorch.mlls.ExactMarginalLogLikelihood(gp.likelihood, gp)
@@ -55,7 +55,7 @@ hv = hypervolume(train_Y[mask], ref_point)
 print(f"Pareto front size: {mask.sum()}, HV: {hv:.2f}")
 
 titer = train_Y[:, 0].tolist()
-vcv   = train_Y[:, 1].tolist()
+vcv = train_Y[:, 1].tolist()
 fig = fig7_pareto_front(titer, vcv, pareto_mask=mask.tolist(), alt_text=True)
 fig.savefig("fig7_pareto_front.pdf")
 print("Saved fig7_pareto_front.pdf")

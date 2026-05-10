@@ -9,6 +9,6 @@ Public API
 - :func:`~perfusio.viz.pareto_explorer.pareto_scatter` — interactive Pareto front.
 """
 
-from perfusio.viz.theme import apply_theme, PALETTE
+from perfusio.viz.theme import PALETTE, apply_theme
 
-__all__ = ["apply_theme", "PALETTE"]
+__all__ = ["PALETTE", "apply_theme"]

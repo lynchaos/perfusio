@@ -52,8 +52,9 @@ def compute_pareto_front(Y: Tensor) -> Tensor:
     for i in range(N):
         if not is_pareto[i]:
             continue
-        # Check if point i is dominated by any other non-dominated point
-        dominated = (Y > Y[i]).all(dim=1)  # j dominates i on all objectives
+        # Check if point i is dominated by any other non-dominated point.
+        # j dominates i iff j >= i on ALL objectives AND j > i on AT LEAST ONE.
+        dominated = (Y[i] <= Y).all(dim=1) & (Y[i] < Y).any(dim=1)
         dominated[i] = False  # a point cannot dominate itself
         if dominated.any():
             is_pareto[i] = False
@@ -82,20 +83,21 @@ def hypervolume(Y: Tensor, ref_point: Tensor) -> float:
     """
     try:
         from botorch.utils.multi_objective.hypervolume import Hypervolume as BotorchHV
+
         hv_calc = BotorchHV(ref_point=ref_point)
         return float(hv_calc.compute(Y))
-    except ImportError:
+    except ImportError as err:
         # Fallback: 2-objective Monte Carlo estimate (covers the common case)
         if Y.shape[1] != 2:
             msg = "Fallback hypervolume only supports 2 objectives; install botorch."
-            raise ImportError(msg)
+            raise ImportError(msg) from err
         return _hv_2d(Y, ref_point)
 
 
 def _hv_2d(Y: Tensor, ref_point: Tensor) -> float:
     """Exact 2-objective hypervolume via sweep-line algorithm."""
     # Filter dominated by ref
-    mask = (Y > ref_point).all(dim=1)
+    mask = (ref_point < Y).all(dim=1)
     Y = Y[mask]
     if Y.shape[0] == 0:
         return 0.0

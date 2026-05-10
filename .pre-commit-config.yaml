@@ -25,9 +25,8 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
-          - types-all
-          - torch>=2.2
           - pydantic>=2.6
+          - types-requests
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
@@ -35,7 +34,7 @@ repos:
       - id: codespell
         args:
           - --skip=*.lock,*.svg,*.pdf,docs/_build,dist,*.ipynb
-          - --ignore-words-list=cll,nd,theis,fo,teh
+          - --ignore-words-list=cll,nd,theis,fo,teh,lik,deques,socio-economic,Digitalizing
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.7.1

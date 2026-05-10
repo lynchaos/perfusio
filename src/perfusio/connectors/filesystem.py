@@ -15,7 +15,6 @@ or long-form Parquet with columns ``day``, ``species``, ``value``.
 from __future__ import annotations
 
 import csv
-import io
 import logging
 from pathlib import Path
 from typing import Any
@@ -111,18 +110,23 @@ class FilesystemStore(BioreactorConnectorBase):
                     }
                 else:
                     result.setdefault(day, {})[str(row["species"])] = (
-                        float(row["value"]) if row["value"] not in ("", "NA", "NaN", "None") else None
+                        float(row["value"])
+                        if row["value"] not in ("", "NA", "NaN", "None")
+                        else None
                     )
         return result
 
     def _load_parquet(self) -> dict[int, dict[str, Any]]:
         import pandas as pd
+
         df = pd.read_parquet(self.source_path)
         result: dict[int, dict[str, Any]] = {}
         if self.wide_format:
             for _, row in df.iterrows():
                 day = int(row["day"])
-                result[day] = {k: (float(v) if v == v else None) for k, v in row.items() if k != "day"}
+                result[day] = {
+                    k: (float(v) if v == v else None) for k, v in row.items() if k != "day"
+                }
         else:
             for _, row in df.iterrows():
                 day = int(row["day"])
@@ -132,12 +136,15 @@ class FilesystemStore(BioreactorConnectorBase):
 
     def _load_excel(self) -> dict[int, dict[str, Any]]:
         import pandas as pd
+
         df = pd.read_excel(self.source_path)
         result: dict[int, dict[str, Any]] = {}
         if self.wide_format:
             for _, row in df.iterrows():
                 day = int(row["day"])
-                result[day] = {k: (float(v) if v == v else None) for k, v in row.items() if k != "day"}
+                result[day] = {
+                    k: (float(v) if v == v else None) for k, v in row.items() if k != "day"
+                }
         else:
             for _, row in df.iterrows():
                 day = int(row["day"])

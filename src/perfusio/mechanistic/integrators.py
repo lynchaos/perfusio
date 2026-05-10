@@ -30,7 +30,7 @@ _ATOL = 1e-9
 
 
 def integrate_run(
-    kinetics: "CHOKinetics",
+    kinetics: CHOKinetics,
     y0: list[float],
     controls: dict[str, float],
     n_days: int,
@@ -84,7 +84,7 @@ def integrate_run(
 
 
 def _try_integrate(
-    rhs: "object",
+    rhs: object,
     y0: list[float],
     t_eval: np.ndarray,
     t_end: float,

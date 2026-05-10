@@ -7,8 +7,9 @@ Tests:
 
 from __future__ import annotations
 
-from hypothesis import given, settings, strategies as st
 import torch
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 
 @settings(max_examples=50, deadline=5000)
@@ -18,7 +19,7 @@ import torch
 )
 def test_volume_mass_balance(perfusion_rate: float, bleed_rate: float) -> None:
     """Volume should remain constant under constant-volume operation."""
-    from perfusio.chemistry.volumes import perfusion_volume_step, constant_volume_harvest_rate
+    from perfusio.chemistry.volumes import constant_volume_harvest_rate, perfusion_volume_step
 
     v0 = 0.250  # L
     feed_rate = perfusion_rate * v0 / 24.0
@@ -32,9 +33,10 @@ def test_volume_mass_balance(perfusion_rate: float, bleed_rate: float) -> None:
 @given(best_f=st.floats(min_value=0.0, max_value=2.0))
 def test_ei_decreases_with_higher_best_f(best_f: float) -> None:
     """EI should decrease as best_f increases (all else equal)."""
-    from botorch.models import SingleTaskGP
-    from botorch.fit import fit_gpytorch_mll
     import gpytorch
+    from botorch.fit import fit_gpytorch_mll
+    from botorch.models import SingleTaskGP
+
     from perfusio.bed.acquisitions import build_acquisition
 
     torch.manual_seed(42)

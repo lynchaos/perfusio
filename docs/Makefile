@@ -1,7 +1,7 @@
 all: html
 
 html:
-	sphinx-build -b html source build/html -W --keep-going
+	sphinx-build -b html source build/html --keep-going
 
 linkcheck:
 	sphinx-build -b linkcheck source build/linkcheck

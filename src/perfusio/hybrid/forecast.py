@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 def forecast_run(
-    hybrid: "HybridStateSpaceModel",
+    hybrid: HybridStateSpaceModel,
     c0: Tensor,
     controls: Tensor,
     horizon: int = 3,

@@ -16,11 +16,11 @@ from perfusio.metrics.multiobjective import epsilon_indicator, hypervolume_indic
 from perfusio.metrics.rrmse import rrmse_horizon
 
 __all__ = [
-    "rrmse_horizon",
-    "pi_coverage",
-    "sharpness",
     "crps",
+    "epsilon_indicator",
     "hypervolume_indicator",
     "igd_plus",
-    "epsilon_indicator",
+    "pi_coverage",
+    "rrmse_horizon",
+    "sharpness",
 ]

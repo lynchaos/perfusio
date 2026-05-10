@@ -2,8 +2,19 @@ cff-version: 1.2.0
 message: "If you use perfusio, please cite the following works."
 title: "perfusio: Self-Driving Perfusion Bioprocess Reference Implementation"
 version: "0.1.0"
+date-released: "2026-05-10"
 license: Apache-2.0
-repository-code: "https://github.com/your-org/perfusio"
+repository-code: "https://github.com/lynchaos/perfusio"
+url: "https://lynchaos.github.io/perfusio"
+contact:
+  - email: support@yaylali.uk
+    name: Kemal Yaylali
+authors:
+  - family-names: Yaylali
+    given-names: Kemal
+    email: kemal.yaylali@gmail.com
+    orcid: ""
+    website: "https://kemal.yaylali.uk"
 abstract: >
   perfusio is an open-source Python library providing a peer-reviewable
   reference implementation of the self-driving perfusion methodology of

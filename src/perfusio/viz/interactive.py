@@ -19,7 +19,7 @@ def trajectory_figure(
     runs: list[dict[str, Any]],
     species: str = "VCD",
     title: str = "Perfusion run trajectories",
-) -> "Any":
+) -> Any:
     """Interactive Plotly line chart of multiple run trajectories.
 
     Parameters
@@ -38,8 +38,15 @@ def trajectory_figure(
     import plotly.graph_objects as go
 
     species_idx = {
-        "VCD": 0, "Via": 1, "Glc": 2, "Gln": 3, "Glu": 4,
-        "Lac": 5, "Amm": 6, "Pyr": 7, "Titer": 8,
+        "VCD": 0,
+        "Via": 1,
+        "Glc": 2,
+        "Gln": 3,
+        "Glu": 4,
+        "Lac": 5,
+        "Amm": 6,
+        "Pyr": 7,
+        "Titer": 8,
     }
     k = species_idx.get(species, 0)
 
@@ -49,7 +56,8 @@ def trajectory_figure(
         days = list(range(traj.shape[0]))
         fig.add_trace(
             go.Scatter(
-                x=days, y=traj[:, k].tolist(),
+                x=days,
+                y=traj[:, k].tolist(),
                 mode="lines+markers",
                 name=f"Run {run['run_id']}",
                 line={"width": 1.5},
@@ -76,7 +84,7 @@ def forecast_figure(
     observed_values: np.ndarray | None = None,
     species: str = "VCD",
     title: str = "3-step forecast",
-) -> "Any":
+) -> Any:
     """Plotly figure with GP mean and 80% prediction interval ribbon.
 
     Parameters
@@ -116,16 +124,21 @@ def forecast_figure(
     # Mean line
     fig.add_trace(
         go.Scatter(
-            x=days.tolist(), y=np.asarray(mean).tolist(),
-            mode="lines", name="Mean", line={"color": "#4E9AF1", "width": 2},
+            x=days.tolist(),
+            y=np.asarray(mean).tolist(),
+            mode="lines",
+            name="Mean",
+            line={"color": "#4E9AF1", "width": 2},
         )
     )
     # Observations
     if observed_days is not None and observed_values is not None:
         fig.add_trace(
             go.Scatter(
-                x=list(observed_days), y=np.asarray(observed_values).tolist(),
-                mode="markers", name="Observed",
+                x=list(observed_days),
+                y=np.asarray(observed_values).tolist(),
+                mode="markers",
+                name="Observed",
                 marker={"color": "#E0775C", "size": 8, "symbol": "circle"},
             )
         )
@@ -145,7 +158,7 @@ def pareto_scatter(
     is_pareto: np.ndarray | None = None,
     hover_text: list[str] | None = None,
     title: str = "Pareto front — Titer vs. VCV",
-) -> "Any":
+) -> Any:
     """Interactive Pareto front scatter plot.
 
     Parameters
@@ -176,8 +189,10 @@ def pareto_scatter(
         # Non-Pareto background
         fig.add_trace(
             go.Scatter(
-                x=titer[~mask].tolist(), y=vcv[~mask].tolist(),
-                mode="markers", name="Feasible",
+                x=titer[~mask].tolist(),
+                y=vcv[~mask].tolist(),
+                mode="markers",
+                name="Feasible",
                 marker={"color": "#D0D0D0", "size": 7},
                 text=[hover_text[i] for i, m in enumerate(mask) if not m] if hover_text else None,
                 hoverinfo="text+x+y",
@@ -187,8 +202,10 @@ def pareto_scatter(
         order = np.argsort(titer[mask])
         fig.add_trace(
             go.Scatter(
-                x=titer[mask][order].tolist(), y=vcv[mask][order].tolist(),
-                mode="lines+markers", name="Pareto front",
+                x=titer[mask][order].tolist(),
+                y=vcv[mask][order].tolist(),
+                mode="lines+markers",
+                name="Pareto front",
                 line={"color": "#4E9AF1", "width": 2},
                 marker={"color": "#4E9AF1", "size": 9},
                 text=[hover_text[i] for i, m in enumerate(mask) if m] if hover_text else None,
@@ -198,8 +215,10 @@ def pareto_scatter(
     else:
         fig.add_trace(
             go.Scatter(
-                x=titer.tolist(), y=vcv.tolist(),
-                mode="markers", name="Points",
+                x=titer.tolist(),
+                y=vcv.tolist(),
+                mode="markers",
+                name="Points",
                 marker={"color": "#4E9AF1", "size": 7},
             )
         )
@@ -220,7 +239,7 @@ def acquisition_surface(
     x1_label: str = "Perfusion rate (vvd)",
     x2_label: str = "Bleed rate (vvd)",
     title: str = "Acquisition function surface",
-) -> "Any":
+) -> Any:
     """2-D acquisition function heat-map as an interactive contour plot.
 
     Parameters

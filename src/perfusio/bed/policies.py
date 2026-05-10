@@ -21,12 +21,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-import torch
 from torch import Tensor
 
 if TYPE_CHECKING:
-    from perfusio.bed.acquisitions import build_acquisition
-    from perfusio.bed.objectives import TargetTrackingOFV
     from perfusio.config import DesignSpace
 
 logger = logging.getLogger(__name__)
@@ -76,11 +73,11 @@ class BEDPolicy:
 
     def __init__(
         self,
-        hybrid: "object",
-        design_space: "DesignSpace",
+        hybrid: object,
+        design_space: DesignSpace,
         acqf_name: str = "qLogEI",
         allow_write: bool = False,
-        targets: list["object"] | None = None,
+        targets: list[object] | None = None,
         n_restarts: int = 10,
         n_raw_samples: int = 512,
     ) -> None:
@@ -97,7 +94,7 @@ class BEDPolicy:
         self,
         c_current: Tensor,
         day: int,
-        surrogate_model: "object",
+        surrogate_model: object,
         best_f: float | None = None,
         seed: int | None = None,
     ) -> BEDDecision:
@@ -142,8 +139,7 @@ class BEDPolicy:
         # candidates shape: (1, n_controls)
         u_rec = candidates.squeeze(0)
         ctrl_dict = {
-            name: float(u_rec[i])
-            for i, name in enumerate(self.design_space.control_names)
+            name: float(u_rec[i]) for i, name in enumerate(self.design_space.control_names)
         }
 
         decision = BEDDecision(
@@ -153,8 +149,7 @@ class BEDPolicy:
             acqf_value=float(acqf_val.item()),
             acqf_name=self.acqf_name,
             current_state={
-                name: float(c_current[i])
-                for i, name in enumerate(self.design_space.species_names)
+                name: float(c_current[i]) for i, name in enumerate(self.design_space.species_names)
             },
         )
 
@@ -162,12 +157,16 @@ class BEDPolicy:
             logger.info(
                 "BEDPolicy: allow_write=False — recommendation logged but NOT applied. "
                 "Day=%d, acqf=%s, val=%.4f",
-                day, self.acqf_name, float(acqf_val.item()),
+                day,
+                self.acqf_name,
+                float(acqf_val.item()),
             )
         else:
             logger.info(
                 "BEDPolicy: Writing setpoints. Day=%d, acqf=%s, val=%.4f",
-                day, self.acqf_name, float(acqf_val.item()),
+                day,
+                self.acqf_name,
+                float(acqf_val.item()),
             )
 
         self._history.append(decision)

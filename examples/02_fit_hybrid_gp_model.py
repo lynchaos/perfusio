@@ -22,7 +22,6 @@ import torch
 
 from perfusio.config import DEFAULT_AMBR250_DESIGN_SPACE
 from perfusio.hybrid.train import train_hybrid
-from perfusio.metrics import rrmse_horizon
 
 RUNS_DIR = Path("runs")
 MODEL_PATH = Path("model.pt")
@@ -56,6 +55,6 @@ print(f"Model saved to {MODEL_PATH}")
 
 if holdout_traj is not None:
     # Evaluate rRMSE on holdout (first 5 species: VCD, Glc, Lac, Gln, Glu)
-    true_y = holdout_traj.unsqueeze(0)          # (1, T, n_spc)
-    pred_y = model.forecast(holdout_traj[0])     # placeholder — returns dict
+    true_y = holdout_traj.unsqueeze(0)  # (1, T, n_spc)
+    pred_y = model.forecast(holdout_traj[0])  # placeholder — returns dict
     print("Holdout evaluation done. See rRMSE output above.")

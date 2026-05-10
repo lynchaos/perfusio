@@ -28,7 +28,7 @@ from torch import Tensor
 from torch.optim import LBFGS, Adam
 
 if TYPE_CHECKING:
-    from perfusio.hybrid.model import HybridStateSpaceModel
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ def train_hybrid(
         if torch.isnan(final_loss) or torch.isinf(final_loss):
             lbfgs_ok = False
             logger.warning("L-BFGS produced NaN/Inf loss; falling back to Adam.")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         lbfgs_ok = False
         logger.warning("L-BFGS failed (%s); falling back to Adam.", exc)
 

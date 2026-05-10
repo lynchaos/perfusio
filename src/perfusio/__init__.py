@@ -29,10 +29,10 @@ from perfusio.config import DesignSpace, RunConfig
 from perfusio.states import State, StateBatch, Trajectory
 
 __all__ = [
-    "__version__",
     "DesignSpace",
     "RunConfig",
     "State",
     "StateBatch",
     "Trajectory",
+    "__version__",
 ]

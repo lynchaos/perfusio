@@ -35,8 +35,7 @@ References
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import ClassVar
 
 
@@ -104,8 +103,11 @@ class CHOKinetics:
     K_gln: float = 0.50  # mmol/L (S)
 
     # Glucose consumption (Pirt)
-    q_glc_max: float = 5.0e-10  # g cell⁻¹ h⁻¹ (S)
-    m_glc: float = 5.0e-11  # g cell⁻¹ h⁻¹ (S — Pirt 1965)
+    # Calibrated so that at VCD ~10×10⁶ cells/mL the glucose steady-state is
+    # ~0.1 g/L (glucose-limited) with perfusion_rate = 1.0 vvd, glc_feed = 5 g/L.
+    # Original value (5.0e-10) was ~9× too high and depleted glucose within hours.
+    q_glc_max: float = 5.5e-11  # g cell⁻¹ h⁻¹ (S — recalibrated)
+    m_glc: float = 2.0e-12  # g cell⁻¹ h⁻¹ (S — Pirt 1965, recalibrated)
 
     # Lactate metabolism
     Y_lac_glc: float = 1.8  # mmol lac / mmol glc consumed (S)
@@ -114,14 +116,19 @@ class CHOKinetics:
     consumes_lactate: bool = True  # True = clone X; False = clone Y
 
     # Glutamine consumption
-    q_gln_max: float = 3.0e-10  # mmol cell⁻¹ h⁻¹ (S)
+    # Calibrated proportionally to q_glc_max (original 3.0e-10 depleted Gln
+    # within hours at high VCD).
+    q_gln_max: float = 5.0e-11  # mmol cell⁻¹ h⁻¹ (S — recalibrated)
     K_d: float = 0.003  # h⁻¹ base death rate (S)
     K_T: float = 0.001  # h⁻¹ K⁻¹ temperature sensitivity (S)
     T_ref: float = 37.0  # °C reference temperature (S)
 
     # Product kinetics (Luedeking–Piret 1959)
+    # q_mAb_nongrowth calibrated so that Titer_ss ≈ 500 mg/L at VCD ~10×10⁶
+    # cells/mL: Q_mab / D_harvest = (1.8e-9 × 10e9) / (0.85/24) ≈ 508 mg/L.
+    # Original value (5.0e-11) gave only ~2 mg/L (36× too low).
     q_mAb_growth: float = 2.0e-9  # mg cell⁻¹ (α, growth-associated) (S)
-    q_mAb_nongrowth: float = 5.0e-11  # mg cell⁻¹ h⁻¹ (β, non-growth) (S)
+    q_mAb_nongrowth: float = 1.8e-9  # mg cell⁻¹ h⁻¹ (β, non-growth) (S — recalibrated)
 
     # Ammonium production from Gln deamidation
     alpha_amm_gln: float = 0.85  # mmol NH4 / mmol Gln consumed (S)
@@ -194,7 +201,7 @@ class CHOKinetics:
         specific_rate = self.q_glc_max * (mu_val / self.mu_max + 0.1) + self.m_glc
         return specific_rate * vcd_L  # g L⁻¹ h⁻¹
 
-    def q_lac(self, glc: float, q_glc_val: float) -> float:
+    def q_lac(self, glc: float, q_glc_val: float, vcd: float = 0.0) -> float:
         """Volumetric lactate production/consumption rate.
 
         For clone X: produces lactate when ``glc > glc_switch``;
@@ -207,6 +214,9 @@ class CHOKinetics:
             Current glucose [g L⁻¹].
         q_glc_val:
             Volumetric glucose consumption rate [g L⁻¹ h⁻¹].
+        vcd:
+            Viable cell density [10⁶ cells mL⁻¹].  Required for the
+            metabolic-switch (lactate consumption) branch.
 
         Returns
         -------
@@ -221,8 +231,10 @@ class CHOKinetics:
         # Convert g/L glucose consumed → mmol/L (MW Glc = 180 g/mol)
         glc_mmol_per_h = q_glc_val / 180.0 * 1000.0  # mmol L⁻¹ h⁻¹
         if self.consumes_lactate and glc < self.glc_switch:
-            # Metabolic switch: consume lactate
-            return -self.lac_consump_rate * 1e9  # negative = consumption (S)
+            # Metabolic switch: consume lactate at a VCD-scaled volumetric rate.
+            # Units: lac_consump_rate [mmol h⁻¹ per cell] × vcd_L [cells L⁻¹]
+            vcd_L = vcd * 1e9  # 10⁶ cells mL⁻¹ → cells L⁻¹
+            return -self.lac_consump_rate * vcd_L  # negative = consumption
         # Warburg: produce lactate proportional to glucose consumed
         return self.Y_lac_glc * glc_mmol_per_h
 
@@ -342,7 +354,7 @@ class CHOKinetics:
 
     def ode_rhs(
         self,
-        t: float,  # noqa: ARG002 — required by scipy.integrate.solve_ivp signature
+        t: float,  # — required by scipy.integrate.solve_ivp signature
         y: list[float],
         controls: dict[str, float],
     ) -> list[float]:
@@ -369,7 +381,7 @@ class CHOKinetics:
         list[float]
             Time derivatives for each state variable [h⁻¹ × units].
         """
-        (vcd, via, glc, gln, glu, lac, amm, pyr, titer) = y  # noqa: F841
+        (vcd, via, glc, gln, glu, lac, amm, pyr, titer) = y
 
         T = controls.get("temperature", 37.0)
         V = controls.get("volume_L", 0.250)
@@ -391,7 +403,7 @@ class CHOKinetics:
 
         Q_glc = self.q_glc(mu_val, max(vcd, 0.0))
         Q_gln = self.q_gln(mu_val, max(vcd, 0.0))
-        Q_lac = self.q_lac(glc, Q_glc)
+        Q_lac = self.q_lac(glc, Q_glc, vcd=max(vcd, 0.0))
         Q_amm = self.q_amm(Q_gln, max(pyr, 0.0), max(amm, 0.0))
         Q_mab = self.q_mab(mu_val, max(vcd, 0.0))
 
@@ -423,8 +435,11 @@ class CHOKinetics:
         dAmm = Q_amm - D_harvest * max(amm, 0.0)
 
         # Pyruvate: fed in, scavenges NH4, diluted
-        dPyr = (D_perf * pyr_feed - D_harvest * max(pyr, 0.0)
-                - self.k_pyr_amm * max(pyr, 0.0) * max(amm, 0.0))
+        dPyr = (
+            D_perf * pyr_feed
+            - D_harvest * max(pyr, 0.0)
+            - self.k_pyr_amm * max(pyr, 0.0) * max(amm, 0.0)
+        )
 
         # mAb titer: product accumulates, partially harvested
         dTiter = Q_mab - D_harvest * max(titer, 0.0)
@@ -433,5 +448,13 @@ class CHOKinetics:
 
     #: Canonical ordering of ODE state variables.
     STATE_ORDER: ClassVar[list[str]] = [
-        "VCD", "Via", "Glc", "Gln", "Glu", "Lac", "Amm", "Pyr", "Titer"
+        "VCD",
+        "Via",
+        "Glc",
+        "Gln",
+        "Glu",
+        "Lac",
+        "Amm",
+        "Pyr",
+        "Titer",
     ]

@@ -39,7 +39,7 @@ This document explicitly lists what `perfusio` does **not** model or support.
 
 ## Performance
 
-- **Wall-clock speed** — Training 24 Box-Behnken runs × 28 days on CPU
+- **Wall-clock speed** — Training 27 Box-Behnken runs × 28 days on CPU
   takes approximately 2–5 minutes. GPU acceleration is available but
   not CI-tested.
 - **Scalability** — The SQL schema and SQLite backend are not intended for

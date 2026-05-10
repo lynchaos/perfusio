@@ -23,8 +23,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import torch
 import gpytorch
+import torch
 from torch import Tensor
 
 from perfusio.embedding.clones import EntityEmbedding
@@ -90,7 +90,8 @@ class TransferLearner:
         n_iter:
             Number of optimisation steps.
         """
-        x_aug = self.embedding.embed_and_concat(train_x, clone_ids)
+        clone_emb = self.embedding(clone_ids)  # (N, embed_dim)
+        x_aug = torch.cat([train_x, clone_emb], dim=1)  # (N, d_raw + embed_dim)
         _train_gp(
             self.model,
             self.likelihood,
@@ -126,14 +127,16 @@ class TransferLearner:
             the embedding.  Useful when the target dataset is very small (< 3
             runs) to avoid catastrophic forgetting.
         """
-        x_aug = self.embedding.embed_and_concat(train_x, clone_ids)
+        clone_emb = self.embedding(clone_ids)  # (M, embed_dim)
+        x_aug = torch.cat([train_x, clone_emb], dim=1)  # (M, d_raw + embed_dim)
 
         # Build param groups with different learning rates
         embed_params = list(self.embedding.parameters())
         embed_ids = {id(p) for p in embed_params}
 
         backbone_params = [
-            p for p in list(self.model.parameters()) + list(self.likelihood.parameters())
+            p
+            for p in list(self.model.parameters()) + list(self.likelihood.parameters())
             if id(p) not in embed_ids
         ]
 

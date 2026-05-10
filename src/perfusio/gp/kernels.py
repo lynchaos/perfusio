@@ -23,7 +23,6 @@ References
 from __future__ import annotations
 
 import gpytorch
-import torch
 from gpytorch.kernels import (
     IndexKernel,
     LinearKernel,
@@ -85,9 +84,7 @@ class PerfusionKernel(gpytorch.kernels.Kernel):
         self.state_kernel = ScaleKernel(
             MaternKernel(nu=2.5, ard_num_dims=ard_num_dims, active_dims=tuple(range(n_state_dims)))
         )
-        self.day_kernel = ScaleKernel(
-            LinearKernel(active_dims=(n_state_dims,))
-        )
+        self.day_kernel = ScaleKernel(LinearKernel(active_dims=(n_state_dims,)))
         self.task_kernel = IndexKernel(
             num_tasks=n_tasks,
             rank=rank,

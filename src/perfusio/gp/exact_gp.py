@@ -17,8 +17,8 @@ from __future__ import annotations
 
 import gpytorch
 import torch
-from gpytorch.distributions import MultitaskMultivariateNormal, MultivariateNormal
-from gpytorch.likelihoods import MultitaskGaussianLikelihood
+from gpytorch.distributions import MultivariateNormal
+from gpytorch.likelihoods import GaussianLikelihood
 from gpytorch.means import Mean
 from gpytorch.models import ExactGP
 from torch import Tensor
@@ -35,11 +35,13 @@ class MultiTaskRateGP(ExactGP):
     Parameters
     ----------
     train_x:
-        Training inputs, shape ``(N, d_input)``.
+        Training inputs, shape ``(N * n_tasks, d_input)`` in the indexed
+        multi-task format — last column is the task_id (0..n_tasks-1).
     train_y:
-        Training targets, shape ``(N, n_tasks)``.
+        Training targets, shape ``(N * n_tasks,)`` — one scalar per row.
     likelihood:
-        Multitask Gaussian likelihood.
+        Gaussian likelihood (single-output; task correlation is captured
+        by the :class:`~perfusio.gp.kernels.PerfusionKernel` IndexKernel).
     mean_module:
         Mean function module.  Should be a GPyTorch ``Mean`` or
         :class:`~perfusio.gp.means.MechanisticPriorMean`.
@@ -47,7 +49,7 @@ class MultiTaskRateGP(ExactGP):
         Composite kernel.  If ``None``, constructs a default
         :class:`~perfusio.gp.kernels.PerfusionKernel`.
     n_tasks:
-        Number of output tasks.
+        Number of output tasks (species).
     n_state_dims:
         Input dimensionality (species + controls); needed to build default kernel.
 
@@ -56,9 +58,10 @@ class MultiTaskRateGP(ExactGP):
     >>> import torch, gpytorch
     >>> from perfusio.gp import MultiTaskRateGP
     >>> N, d, T = 50, 10, 5
-    >>> X = torch.randn(N, d + 2)  # d state + 1 day + 1 task index
-    >>> Y = torch.randn(N, T)
-    >>> lik = gpytorch.likelihoods.MultitaskGaussianLikelihood(num_tasks=T)
+    >>> # Indexed format: N*T rows, last col = task_id
+    >>> X = torch.randn(N * T, d + 2)  # d state + 1 day + 1 task_id
+    >>> Y = torch.randn(N * T)          # flat scalar targets
+    >>> lik = gpytorch.likelihoods.GaussianLikelihood()
     >>> mean = gpytorch.means.ZeroMean()
     >>> gp = MultiTaskRateGP(X, Y, lik, mean, n_tasks=T, n_state_dims=d)
     """
@@ -67,7 +70,7 @@ class MultiTaskRateGP(ExactGP):
         self,
         train_x: Tensor,
         train_y: Tensor,
-        likelihood: MultitaskGaussianLikelihood,
+        likelihood: GaussianLikelihood,
         mean_module: Mean,
         kernel: PerfusionKernel | None = None,
         n_tasks: int = 9,
@@ -126,7 +129,6 @@ class MultiTaskRateGP(ExactGP):
             pred = self.likelihood(self(x_new))
         out: dict[str, Tensor] = {"mean": pred.mean}
         for p in ci_levels:
-            out[f"q{int(p * 100)}"] = pred.mean + torch.erfinv(
-                torch.tensor(2 * p - 1, dtype=pred.mean.dtype)
-            ) * pred.stddev * (2.0 ** 0.5)
+            z = torch.tensor(2 * p - 1, dtype=pred.mean.dtype, device=pred.mean.device)
+            out[f"q{int(p * 100)}"] = pred.mean + torch.erfinv(z) * pred.stddev * (2.0**0.5)
         return out

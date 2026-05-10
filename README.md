@@ -2,8 +2,8 @@
 
 `perfusio` is an open, peer-reviewable reference implementation of the self-driving perfusion methodology of Gadiyar et al. (2026) and Hutter et al. (2021), providing stepwise Gaussian Process hybrid models, entity-embedding transfer learning, 11 Bayesian experimental design acquisitions, and a fully-instrumented online digital twin for CHO cell perfusion bioprocesses.
 
-[![CI](https://github.com/your-org/perfusio/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/perfusio/actions/workflows/ci.yml)
-[![Docs](https://github.com/your-org/perfusio/actions/workflows/docs.yml/badge.svg)](https://your-org.github.io/perfusio)
+[![CI](https://github.com/lynchaos/perfusio/actions/workflows/ci.yml/badge.svg)](https://github.com/lynchaos/perfusio/actions/workflows/ci.yml)
+[![Docs](https://github.com/lynchaos/perfusio/actions/workflows/docs.yml/badge.svg)](https://lynchaos.github.io/perfusio)
 [![PyPI](https://img.shields.io/pypi/v/perfusio)](https://pypi.org/project/perfusio)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/perfusio)](https://pypi.org/project/perfusio)
@@ -28,6 +28,7 @@ python examples/reproduce_paper_figures.py
 ### CLI
 
 ```bash
+# Generates 27 runs (4-factor Box-Behnken design, 3 centre points)
 perfusio simulate --clone CloneX --n-days 28 --out runs/
 perfusio train   --runs runs/ --model-out model.pt
 perfusio run     --model model.pt --connector ambr250 --dashboard
@@ -78,7 +79,7 @@ perfusio run --dashboard
 ### Development
 
 ```bash
-git clone https://github.com/your-org/perfusio.git
+git clone https://github.com/lynchaos/perfusio.git
 cd perfusio
 pip install -e ".[dev]"
 pre-commit install
@@ -130,6 +131,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Code of Conduct
 
 See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Maintainer
+
+**Kemal Yaylali** — [kemal.yaylali.uk](https://kemal.yaylali.uk)
+
+- GitHub: [@lynchaos](https://github.com/lynchaos)
+- X / Twitter: [@kmlyyll](https://x.com/kmlyyll)
+- LinkedIn: [kemalyaylali](https://www.linkedin.com/in/kemalyaylali/)
+- Support: [support@yaylali.uk](mailto:support@yaylali.uk)
 
 ## Licence
 
