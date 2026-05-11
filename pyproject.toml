@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "perfusio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Open reference implementation of self-driving perfusion bioprocess development (Gadiyar et al., 2026)"
 readme = "README.md"
 license = { text = "Apache-2.0" }
