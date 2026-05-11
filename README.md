@@ -107,7 +107,7 @@ If you use `perfusio`, please cite:
 
 @article{hutter2021,
   author  = {Hutter, Clemens and von Stosch, Moritz and Cruz Bournazou, Mariano N. and Butt{\'e}, Alessandro},
-  title   = {Knowledge transfer across cell lines using hybrid {G}aussian
+  title   = {Knowledge transfer across cell lines using hybrid Gaussian
              process models with entity embedding vectors},
   journal = {Biotechnology and Bioengineering},
   year    = {2021},

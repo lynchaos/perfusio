@@ -58,7 +58,7 @@ jobs:
         run: uv run pyright src/perfusio
 
       - name: codespell
-        run: uv run codespell src/ tests/ docs/ --skip="*.lock,*.svg"
+        run: uv run codespell src/ tests/ docs/source/ --skip="*.lock,*.svg"
 
   # ---------------------------------------------------------------------------
   # Tests — full OS × Python matrix
