@@ -14,9 +14,10 @@ References
    391–405. https://doi.org/10.1002/bit.70093
 
 .. [Hutter2021] Hutter, S., von Stosch, M., Cruz Bournazou, M. N., & Butté, A. (2021).
-   Knowledge transfer across cell lines using hybrid Gaussian process models with
-   entity embedding vectors. *Biotechnology and Bioengineering*, 118(12), 4710–4725.
-   https://doi.org/10.1002/bit.27907
+   Clone selection in cell culture development using multi-objective Bayesian
+   optimisation with entity-embedding transfer learning.
+   *Computers & Chemical Engineering*, 151, 107373.
+   https://doi.org/10.1016/j.compchemeng.2021.107373
 """
 
 from __future__ import annotations

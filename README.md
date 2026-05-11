@@ -114,6 +114,7 @@ If you use `perfusio`, please cite:
   year    = {2021},
   volume  = {151},
   pages   = {107373},
+  doi     = {10.1016/j.compchemeng.2021.107373},
 }
 ```
 
