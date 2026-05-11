@@ -106,15 +106,15 @@ If you use `perfusio`, please cite:
 }
 
 @article{hutter2021,
-  author  = {Hutter, Simone and others},
-  title   = {Clone selection in cell culture development using
-             multi-objective Bayesian optimisation with
-             entity-embedding transfer learning},
-  journal = {Computers \& Chemical Engineering},
+  author  = {Hutter, Clemens and von Stosch, Moritz and Cruz Bournazou, Mariano N. and Butt{\'e}, Alessandro},
+  title   = {Knowledge transfer across cell lines using hybrid {G}aussian
+             process models with entity embedding vectors},
+  journal = {Biotechnology and Bioengineering},
   year    = {2021},
-  volume  = {151},
-  pages   = {107373},
-  doi     = {10.1016/j.compchemeng.2021.107373},
+  volume  = {118},
+  number  = {12},
+  pages   = {4710--4725},
+  doi     = {10.1002/bit.27907},
 }
 ```
 

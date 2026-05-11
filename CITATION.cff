@@ -38,13 +38,21 @@ references:
   - type: article
     authors:
       - family-names: Hutter
-        given-names: Simone
-    title: "Clone selection in cell culture development using multi-objective Bayesian optimisation with entity-embedding transfer learning"
-    journal: "Computers & Chemical Engineering"
+        given-names: Clemens
+      - family-names: von Stosch
+        given-names: Moritz
+      - family-names: Cruz Bournazou
+        given-names: Mariano N.
+      - family-names: "Butté"
+        given-names: Alessandro
+    title: "Knowledge transfer across cell lines using hybrid Gaussian process models with entity embedding vectors"
+    journal: "Biotechnology and Bioengineering"
     year: 2021
-    volume: 151
-    pages: "107373"
-    doi: "10.1016/j.compchemeng.2021.107373"
+    volume: 118
+    issue: 12
+    start: 4710
+    end: 4725
+    doi: "10.1002/bit.27907"
 
   - type: article
     authors:
